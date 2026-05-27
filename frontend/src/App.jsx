@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
 
-import Gestao from "./pages/Gestao"
+import Gestao from "./components"
 import Dashboard from "./pages/Dashboard"
 
 function App() {
@@ -18,6 +18,7 @@ function App() {
       </Routes>
 
     </BrowserRouter>
+    
   )
 }
 
