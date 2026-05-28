@@ -131,7 +131,7 @@ function Gestao() {
             notebookId: registro.notebookId
         });
 
-        // ativa modo edição
+        // activa modo edição
         setIndiceEditando(id);
 
         // coloca cursor no input nome
@@ -149,162 +149,156 @@ function Gestao() {
 
     return (
 
-        <div
-            style={{
-                padding: '20px',
-                color: '#fff',
-                backgroundColor: '#222'
-            }}
-        >
+        <div className="dashboard-container management-page">
 
-            <h2>
-                Formulário de Cadastro (Alunos)
-            </h2>
+            <div className="form-card">
+                <h2>
+                    Formulário de Cadastro (Alunos)
+                </h2>
 
-            {/* loading */}
-            {carregando && (
-                <p style={{ color: 'yellow' }}>
-                    Carregando...
-                </p>
-            )}
-
-            <form onSubmit={handlerSubmit}>
-
-                {/* erro local ou erro vindo do backend */}
-                {(erroForm || erro) && (
-
-                    <p style={{ color: 'red' }}>
-                        {erroForm || erro}
+                {/* loading */}
+                {carregando && (
+                    <p className="status-message loading">
+                        Carregando...
                     </p>
                 )}
 
-                {/* sucesso */}
-                {sucessoForm && (
+                <form onSubmit={handlerSubmit}>
 
-                    <p style={{ color: 'green' }}>
-                        Operação realizada com sucesso!
-                    </p>
-                )}
+                    {/* erro local ou erro vindo do backend */}
+                    {(erroForm || erro) && (
 
-                {/* nome */}
-                <InputField
-                    label="Nome: "
-                    type="text"
-                    name="nome"
-                    placeholder="Portgas D. Ace"
-                    value={user.nome}
-
-                    onChange={(e) =>
-
-                        setUser(dados => ({
-                            ...dados,
-                            nome: e.target.value
-                        }))
-                    }
-
-                    inputRef={nomeRef}
-                />
-
-                {/* email */}
-                <InputField
-                    label="E-mail: "
-                    type="email"
-                    name="email"
-                    placeholder="exemplo@email.com"
-                    value={user.email}
-
-                    onChange={(e) =>
-
-                        setUser(dados => ({
-                            ...dados,
-                            email: e.target.value
-                        }))
-                    }
-                />
-
-                {/* senha */}
-                <InputField
-                    label="Senha: "
-                    type="password"
-                    name="senha"
-                    placeholder="Digite uma senha segura"
-                    value={user.senha}
-
-                    onChange={(e) =>
-
-                        setUser(dados => ({
-                            ...dados,
-                            senha: e.target.value
-                        }))
-                    }
-                />
-
-                {/* notebook */}
-                <InputField
-                    label="Número: "
-                    type="number"
-                    name="notebookId"
-                    placeholder="Ex: 32"
-                    value={user.notebookId}
-
-                    onChange={(e) =>
-
-                        setUser(dados => ({
-                            ...dados,
-                            notebookId: e.target.value
-                        }))
-                    }
-                />
-
-                {/* botões */}
-                <div style={{ marginTop: '15px' }}>
-
-                    <Botao
-                        texto={
-                            indiceEditando !== null
-                                ? 'Atualizar'
-                                : 'Cadastrar'
-                        }
-                    />
-
-                    {/* botão cancelar edição */}
-                    {indiceEditando !== null && (
-
-                        <button
-                            type="button"
-
-                            style={{
-                                marginLeft: '10px'
-                            }}
-
-                            onClick={() => {
-
-                                // sai modo edição
-                                setIndiceEditando(null);
-
-                                // limpa formulário
-                                setUser({
-                                    nome: '',
-                                    email: '',
-                                    senha: '',
-                                    notebookId: ''
-                                });
-
-                                setErroForm("");
-                            }}
-                        >
-
-                            Cancelar edição
-
-                        </button>
+                        <p className="status-message error">
+                            {erroForm || erro}
+                        </p>
                     )}
 
-                </div>
+                    {/* sucesso */}
+                    {sucessoForm && (
 
-            </form>
+                        <p className="status-message success">
+                            Operação realizada com sucesso!
+                        </p>
+                    )}
+
+                    <div className="form-grid">
+                        {/* nome */}
+                        <InputField
+                            label="Nome: "
+                            type="text"
+                            name="nome"
+                            placeholder="Portgas D. Ace"
+                            value={user.nome}
+
+                            onChange={(e) =>
+
+                                setUser(dados => ({
+                                    ...dados,
+                                    nome: e.target.value
+                                }))
+                            }
+
+                            inputRef={nomeRef}
+                        />
+
+                        {/* email */}
+                        <InputField
+                            label="E-mail: "
+                            type="email"
+                            name="email"
+                            placeholder="exemplo@email.com"
+                            value={user.email}
+
+                            onChange={(e) =>
+
+                                setUser(dados => ({
+                                    ...dados,
+                                    email: e.target.value
+                                }))
+                            }
+                        />
+
+                        {/* senha */}
+                        <InputField
+                            label="Senha: "
+                            type="password"
+                            name="senha"
+                            placeholder="Digite uma senha segura"
+                            value={user.senha}
+
+                            onChange={(e) =>
+
+                                setUser(dados => ({
+                                    ...dados,
+                                    senha: e.target.value
+                                }))
+                            }
+                        />
+
+                        {/* notebook */}
+                        <InputField
+                            label="Número: "
+                            type="number"
+                            name="notebookId"
+                            placeholder="Ex: 32"
+                            value={user.notebookId}
+
+                            onChange={(e) =>
+
+                                setUser(dados => ({
+                                    ...dados,
+                                    notebookId: e.target.value
+                                }))
+                            }
+                        />
+                    </div>
+
+                    {/* botões */}
+                    <div className="form-actions">
+
+                        <Botao
+                            texto={
+                                indiceEditando !== null
+                                    ? 'Atualizar'
+                                    : 'Cadastrar'
+                            }
+                        />
+
+                        {/* botão cancelar edição */}
+                        {indiceEditando !== null && (
+
+                            <button
+                                type="button"
+                                className="btn-cancel"
+                                onClick={() => {
+
+                                    // sai modo edição
+                                    setIndiceEditando(null);
+
+                                    // limpa formulário
+                                    setUser({
+                                        nome: '',
+                                        email: '',
+                                        senha: '',
+                                        notebookId: ''
+                                    });
+
+                                    setErroForm("");
+                                }}
+                            >
+
+                                Cancelar edição
+
+                            </button>
+                        )}
+
+                    </div>
+
+                </form>
+            </div>
 
             {/* lista de alunos */}
-            <div style={{ marginTop: '30px' }}>
+            <div className="list-card">
 
                 <h3>
                     Alunos Cadastrados
@@ -312,172 +306,28 @@ function Gestao() {
 
                 {alunos.length > 0 ? (
 
-                    <ul>
+                    <ul className="alunos-list">
 
                         {/* percorre todos alunos */}
                         {alunos.map((item) => (
-
-                            <li
-                                key={item.id}
-
-                                style={{
-                                    marginBottom: '15px'
-                                }}
-                            >
-
-                                <strong>
-                                    {item.nome}
-                                </strong>
-
-                                {" "}
-                                - {item.email}
-
-                                {" "}
-                                (Notebook Nº: {item.notebookId})
-
-                                {/* botões */}
-                                <div
-                                    style={{
-                                        border: '2px solid #F4FF5B',
-
-                                        borderRadius: '4px',
-
-                                        padding: '6px',
-
-                                        boxShadow:
-                                            '0 0 10px #F4FF5B',
-
-                                        marginTop: '5px',
-
-                                        display: 'inline-block'
-                                    }}
-                                >
-
-                                    {/* deletar */}
-                                    <button
-                                        onClick={() =>
-                                            handlerDeletar(item.id)
-                                        }
-
-                                        style={{
-                                            marginRight: '5px'
-                                        }}
-                                    >
-
-                                        Deletar
-
-                                    </button>
-
-                                    {/* editar */}
-                                    <button
-                                        onClick={() =>
-                                            handlerEditar(item.id)
-                                        }
-                                    >
-
-                                        Editar
-
-                                    </button>
-
+                            <li key={item.id} className="aluno-item">
+                                <div className="aluno-info">
+                                    <span className="aluno-name">{item.nome}</span>
+                                    <span className="aluno-sub">{item.email} • Notebook #{item.notebookId}</span>
                                 </div>
-
+                                <div className="aluno-actions">
+                                    <button onClick={() => handlerEditar(item.id)} className="btn-edit">Editar</button>
+                                    <button onClick={() => handlerDeletar(item.id)} className="btn-delete">Deletar</button>
+                                </div>
                             </li>
-
                         ))}
-
                     </ul>
-
                 ) : (
-
-                    <p>
-                        Nenhum aluno registrado até o momento.
-                    </p>
+                    <p className="empty-message">Nenhum aluno registrado até o momento.</p>
                 )}
-
             </div>
-
         </div>
     );
 }
 
 export default Gestao;
-
-/*
-GESTAO =============================
-
-A gestao é responsável pela parte principal do CRUD de alunos do sistema.
-
-Nele acontece:
-- cadastro de alunos
-- edição de alunos
-- exclusao de alunos
-- listagem dos alunos cadastrados
-
-Tambem é nele que ficam:
-- validações do formulário
-- mensagens de erro e sucesso
-- integração entre frontend e backend
-- renderização dinâmica da lista de alunos
-
-Ele faz oq? =============================
-
-O usuário preenche o formulário:
-- nome
-- email
-- senha
-- notebook
-
-O sistema valida os dados:
-- senha mínima
-- notebook entre 1 e 200
-- campos obrigatórios
-
-Após validar:
-- os dados são enviados pro hook useAlunos
-- o hook faz comunicação com backend
-
-O backend:
-- salva
-- edita
-- remove
-- os alunos da lista
-
-Dps disso:
-- o React atualiza a tela automaticamente
-- sem precisar dar F5
-
-Hooks principais =============================
-
-handlerSubmit
-- envia formulário
-- valida os dados
-- decide se vai cadastrar ou editar
-
-handlerEditar
-- carrega os dados do aluno no formulário
-- ativa modo edição
-
-handlerDeletar
-- remove aluno selecionado
-
-Integraçao com o useAlunos =========================
-
-O arquivo usa o hook personalizado useAlunos
-pra centralizar toda comunicação com backend.
-
-O hook controla:
-- requisições da API
-- loading
-- erros
-- sucesso
-- atualização automática da lista
-
-Objetivo =======================================
-
-Centralizar o gerenciamento dos alunos
-e dos notebooks utilizados no laboratório.
-
-
-PELO AMOR DE DEUS APRESENTA DIREITO EU QUERO NOTA!!!!!!!!!!!!!!
-*/
-

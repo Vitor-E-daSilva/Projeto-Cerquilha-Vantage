@@ -1,49 +1,29 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
+// componentes do React Router
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from "react-router-dom"
+
+
 
 // páginas do sistema
 import Gestao from "./pages/Gestao"
 import Dashboard from "./pages/Dashboard"
-import Sidebar from "./components/Sidebar"
+
+// sidebar lateral
+import Sidebar from "./components/sidebar";
+
 
 function App() {
+
   return (
-//sistema de paginas no site
+
+    // sistema de páginas do site
     <BrowserRouter>
 
-      {/* navbar principal */}
-      <nav className="navbar">
-
-        {/* logo */}
-        <div className="logo">
-
-          {/* símbolo */}
-          <span className="logo-symbol">
-            #
-          </span>
-
-          {/* nome */}
-          <span className="logo-text">
-            CERQUILHA
-          </span>
-
-        </div>
-
-        {/* links de navegação */}
-        <div className="nav-links">
-
-          {/* abre a rota principal */}
-          <Link to="/">
-            Gestão
-          </Link>
-
-          {/* abre a rota dashboard */}
-          <Link to="/dashboard">
-            Dashboard
-          </Link>
-
-        </div>
-
-      </nav>
+      {/* sidebar lateral */}
+      <Sidebar />
 
       {/* container das rotas */}
       <Routes>
