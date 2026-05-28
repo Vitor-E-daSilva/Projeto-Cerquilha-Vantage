@@ -6,6 +6,7 @@ servidor.use(cors())
 servidor.use(express.json())
 
 const registros = [] //Banco de dados com nome criativo
+let proximoId = 1 // ID automático para cada registro
 
 // Rota de POST
 servidor.post('/registros', (req, res) => { 
@@ -84,12 +85,18 @@ servidor.post('/registros', (req, res) => {
     console.log(`Dados da requisição!
         O que tem no corpo que o front end me mandou : ${dados}`)
 
-    registros.push(dados) // simulando salvar dados no banco
+    // Adiciona ID único antes de salvar
+    const novoRegistro = {
+        id: proximoId++,
+        ...dados
+    }
+    
+    registros.push(novoRegistro) // simulando salvar dados no banco
 
     res.status(201).json({
         sucesso: true,
         mensagem: "Registro Criado Com Sucesso!",
-        dados: dados
+        dados: novoRegistro
     })
 
 })
@@ -102,12 +109,15 @@ servidor.get("/registros", (req, res) => {
 // Rota DELETE
 servidor.delete("/registros/:id", (req, res) => {
     const id = parseInt(req.params.id)
+    
+    // Busca o índice pelo campo id, não pela posição do array
+    const index = registros.findIndex(r => r.id === id)
 
-    if (id < 0 || id >= registros.length) {
+    if (index === -1) {
         return res.status(404).json({erro: "Aluno não encontrado!"})
     }
 
-    registros.splice(id, 1)
+    registros.splice(index, 1)
     res.status(200).json({ mensagem: "Aluno removido"})
 })
 
@@ -116,10 +126,13 @@ servidor.delete("/registros/:id", (req, res) => {
 servidor.put("/registros/:id", (req, res) => {
     const id = parseInt(req.params.id)
     const dados = req.body
+    
+    // Busca o índice pelo campo id
+    const index = registros.findIndex(r => r.id === id)
 
     // Cria uma copia de registros e depois remove o registro que está sendo modificado, serve para checar o unicidade sem gerar conflitos
     const registrosCopia = [...registros]
-    registrosCopia.splice(id, 1)
+    registrosCopia.splice(index, 1)
 
     const duplicataNome = registrosCopia.find(r => r.nome.toLowerCase().trim() === dados.nome.toLowerCase().trim())
     const duplicataEmail = registrosCopia.find(r => r.email.toLowerCase().trim() === dados.email.toLowerCase().trim())
@@ -127,12 +140,12 @@ servidor.put("/registros/:id", (req, res) => {
 
 
 
-    if (id < 0 || id >= registros.length) {
+    if (index === -1) {
         return res.status(404).json({erro: "Registro não encontrado!"})
     }
 
     //Checagens de válidade do nome do usuário
-    if (!dados.nome || dados.nome.trim()) {
+    if (!dados.nome || dados.nome.trim() === "") { 
         //Checa se o campo está vazio
         return res.status(400).json({
             erro: "Campo de nome é Obrigatório!"
@@ -196,8 +209,13 @@ servidor.put("/registros/:id", (req, res) => {
         })
     }
 
-    registros[id] = dados
-    res.status(200).json({mensagem: "Registro Atualizado com Sucesso!", dados: registros[id]})
+    // Mantém o ID original ao atualizar
+    registros[index] = {
+        id: registros[index].id,
+        ...dados
+    }
+    
+    res.status(200).json({mensagem: "Registro Atualizado com Sucesso!", dados: registros[index]})
 })
 
 

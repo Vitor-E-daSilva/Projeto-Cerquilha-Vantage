@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
 
 // páginas do sistema
-import Gestao from "./components/Gestao"
-import Dashboard from "./components/Dashboard"
+import Gestao from "./pages/Gestao"
+import Dashboard from "./pages/Dashboard"
 
 function App() {
   return (
