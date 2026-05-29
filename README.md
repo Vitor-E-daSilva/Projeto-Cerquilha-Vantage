@@ -98,10 +98,10 @@ O endpoint unificado responde na rota principal do backend.
 
 | Método | Rota | Descrição | Status |
 | --- | --- | --- | --- |
-| `GET` | `/notebooks` | Retorna a lista de alunos e seus notebooks alocados | 200 |
-| `POST` | `/notebooks` | Vincula um aluno a um notebook específico | 201 |
-| `PUT` | `/notebooks/:id` | Modifica os dados ou troca o número do notebook pelo ID | 200 |
-| `DELETE` | `/notebooks/:id` | Remove o vínculo do aluno e libera o notebook | 200 |
+| `GET` | `/alunos` | Retorna a lista de alunos e seus notebooks alocados | 200 |
+| `POST` | `/alunos` | Vincula um aluno a um notebook específico | 201 |
+| `PUT` | `/alunos/:id` | Modifica os dados ou troca o número do notebook pelo ID | 200 |
+| `DELETE` | `/alunos/:id` | Remove o vínculo do aluno e libera o notebook | 200 |
 
 ### Payload de Exemplo (JSON)
 
