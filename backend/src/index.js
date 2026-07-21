@@ -228,4 +228,6 @@ servidor.get("/", (c) => (
     })
 ))
 
-export default servidor
+export default {
+    fetch: servidor.fetch // o export default servidor estava gerando erros, essa versão usa fetch para evitar isso
+}
