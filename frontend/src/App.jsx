@@ -10,6 +10,7 @@ import {
 // páginas do sistema
 import Gestao from "./pages/Gestao"
 import Dashboard from "./pages/Dashboard"
+import Configuracoes from "./pages/Configuracoes"
 
 // sidebar lateral
 import Sidebar from "./components/sidebar";
@@ -38,6 +39,12 @@ function App() {
         <Route
           path="/dashboard"
           element={<Dashboard />}
+        />
+
+        {/* rota dashboard */}
+        <Route
+          path="/configuracoes"
+          element={<Configuracoes/>}
         />
 
       </Routes>

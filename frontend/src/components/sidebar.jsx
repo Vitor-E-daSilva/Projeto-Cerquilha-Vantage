@@ -20,6 +20,10 @@ function Sidebar() {
           Dashboard
         </Link>
 
+        <Link to="/configuracoes">
+          Configurações
+        </Link>
+
       </nav>
 
     </aside>
