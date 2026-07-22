@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+<svg xmlns="http://www.w3.org" viewBox="0 0 200 200" fill="none">
   <!-- Fundo com gradiente e cantos arredondados -->
-  <rect width="512" height="512" rx="120" fill="url(#gradiente_roxo)" />
+  <rect width="200" height="200" rx="120" fill="url(#gradiente_roxo)" />
 
   <!-- Traços da Cerquilha (#) -->
-  <path 
+  <path
     d="M208 120 L160 392 M352 120 L304 392 M120 208 L408 208 M104 304 L392 304"
     stroke="#ffffff"
     stroke-width="44"
