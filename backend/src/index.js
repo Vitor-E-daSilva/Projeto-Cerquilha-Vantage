@@ -3,7 +3,13 @@ import { cors } from 'hono/cors'
 
 //Necessário para funcionamento do server
 const servidor = new Hono()
-servidor.use('/*', cors())
+servidor.use('/*', cors({
+    origin: [
+    'http://localhost:5173',
+    'https://cerquilha-vantage.sitedealtonivel.workers.dev'
+  ],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}))
 
 const registros = [] //Banco de dados com nome criativo
 let proximoId = 1 // ID automático para cada registro
