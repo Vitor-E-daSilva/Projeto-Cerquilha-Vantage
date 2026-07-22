@@ -9,9 +9,9 @@ import {
 import { useState, useEffect } from "react";
 
 // páginas do sistema
-import Gestao from "./pages/Gestao"
-import Dashboard from "./pages/Dashboard"
-import Configuracoes from "./pages/Configuracoes"
+import Gestao from "./pages/Gestao/Gestao"
+import Dashboard from "./pages/Dashboard/Dashboard"
+import Configuracoes from "./pages/Configuracoes/Configuracoes"
 
 // sidebar lateral e header
 import Sidebar from "./components/sidebar";

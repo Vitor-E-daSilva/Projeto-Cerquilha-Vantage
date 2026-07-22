@@ -1,5 +1,5 @@
 // hook dos alunos
-import useAlunos from "../hooks/useAlunos"
+import useAlunos from "../../hooks/useAlunos"
 
 function Dashboard() {
 

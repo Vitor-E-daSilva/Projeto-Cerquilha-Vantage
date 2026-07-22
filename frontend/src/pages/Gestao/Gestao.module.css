@@ -1,0 +1,241 @@
+.managementPage {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.header p {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.gestaoGrid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .gestaoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statusMessage {
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusError {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusSuccess {
+  background-color: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+
+.statusLoading {
+  background-color: var(--code-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.inputsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btnCancel {
+  padding: 10px 16px;
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnCancel:hover {
+  background-color: var(--code-bg);
+  color: var(--text-h);
+}
+
+.alunosList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alunoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.alunoItem:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-1px);
+}
+
+.alunoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alunoName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.alunoSub {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.alunoBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.alunoActions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnAction {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btnEdit {
+  background-color: var(--code-bg);
+  color: var(--text-h);
+  border-color: var(--border);
+}
+
+.btnEdit:hover {
+  background-color: var(--accent-bg);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.btnDelete {
+  background-color: transparent;
+  color: #EF4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btnDelete:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: #EF4444;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text);
+  font-size: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+/* Container do Select */
+.selectContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+}
+
+/* Rótulo / Label */
+.selectLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: 0.2px;
+}
+
+/* Estilização do Select */
+.customSelect {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  background-color: var(--bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6375' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.customSelect:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.customSelect option {
+  background-color: var(--surface);
+  color: var(--text-h);
+  padding: 10px;
+}
+
+.customSelect option[value=""] {
+  color: var(--text);
+  opacity: 0.6;
+}
