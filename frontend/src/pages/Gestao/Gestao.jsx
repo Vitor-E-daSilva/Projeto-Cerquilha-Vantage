@@ -5,7 +5,13 @@ import useAlunos from "../../hooks/useAlunos"; // hook que faz comunicação com
 import styles from "../Gestao/Gestao.module.css"; // CSS módulo para a página de gestão
 
 function Gestao() {
-    const nomeRef = useRef(null); // referencia pro input nome
+    // Referências para focar automaticamente em cada campo quando houver erro de validação
+    const nomeRef = useRef(null);
+    const emailRef = useRef(null);
+    const senhaRef = useRef(null);
+    const turmaRef = useRef(null);
+    const notebookRef = useRef(null);
+
     const [user, setUser] = useState({ // campos do formulário
         nome: "",
         email: "",
@@ -69,42 +75,72 @@ function Gestao() {
 
     }, [sucessoForm]);
 
-    // envia formulário
+    // envia formulário com validações completas
     const handlerSubmit = async (e) => {
 
-        e.preventDefault();
+        if (e) e.preventDefault();
 
         setErroForm("");
         setSucessoForm(false);
 
-        // valida senha
-        if (user.senha.length < 7) {
-
-            setErroForm(
-                "Senha inválida, deve conter mínimo de 7 caracteres"
-            );
-
+        // 1. Valida nome
+        if (!user.nome || user.nome.trim().length < 3) {
+            setErroForm("O nome deve ter no mínimo 3 caracteres.");
+            if (nomeRef.current) nomeRef.current.focus();
             return;
         }
 
-        // transforma notebook em número
+        // 2. Valida e-mail
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!user.email || !emailRegex.test(user.email.trim())) {
+            setErroForm("E-mail inválido! Digite no formato exemplo@email.com.");
+            if (emailRef.current) emailRef.current.focus();
+            return;
+        }
+
+        // Valida e-mail duplicado
+        const emailExiste = alunos.some(
+            a => a.email.toLowerCase() === user.email.trim().toLowerCase() && a.id !== indiceEditando
+        );
+        if (emailExiste) {
+            setErroForm("Este e-mail já está cadastrado.");
+            if (emailRef.current) emailRef.current.focus();
+            return;
+        }
+
+        // 3. Valida senha
+        if (!user.senha || user.senha.length < 7) {
+            setErroForm("Senha inválida, deve conter mínimo de 7 caracteres.");
+            if (senhaRef.current) senhaRef.current.focus();
+            return;
+        }
+
+        // 4. Valida turma
+        if (!user.turmaId) {
+            setErroForm("Selecione uma turma para o aluno.");
+            if (turmaRef.current) turmaRef.current.focus();
+            return;
+        }
+
+        // 5. Valida notebook
         const numNotebook = Number(user.notebookId);
-
-        // valida notebook
-        if (
-            isNaN(numNotebook)
-            || numNotebook < 1
-            || numNotebook > 200
-        ) {
-
-            setErroForm(
-                "Número do notebook inválido! Deve ser entre 1 e 200."
-            );
-
+        if (isNaN(numNotebook) || numNotebook < 1 || numNotebook > 200) {
+            setErroForm("Número do notebook inválido! Deve ser entre 1 e 200.");
+            if (notebookRef.current) notebookRef.current.focus();
             return;
         }
 
-        // se estiver editando
+        // Valida notebook duplicado
+        const notebookExiste = alunos.some(
+            a => Number(a.notebookId) === numNotebook && a.id !== indiceEditando
+        );
+        if (notebookExiste) {
+            setErroForm(`O notebook #${numNotebook} já está alocado para outro aluno.`);
+            if (notebookRef.current) notebookRef.current.focus();
+            return;
+        }
+
+        // Se passar por todas as validações, envia para o backend
         if (indiceEditando !== null) {
 
             await editarAluno(
@@ -116,6 +152,13 @@ function Gestao() {
 
             // cria aluno novo
             await criarAluno(user);
+        }
+    };
+
+    // Permite submeter o formulário ao pressionar a tecla Enter em qualquer campo
+    const handlerKeyDown = (e) => {
+        if (e.key === "Enter") {
+            handlerSubmit(e);
         }
     };
 
@@ -213,6 +256,7 @@ function Gestao() {
                                     }))
                                 }
 
+                                onKeyDown={handlerKeyDown}
                                 inputRef={nomeRef}
                             />
 
@@ -231,6 +275,9 @@ function Gestao() {
                                         email: e.target.value
                                     }))
                                 }
+
+                                onKeyDown={handlerKeyDown}
+                                inputRef={emailRef}
                             />
 
                             {/* senha */}
@@ -248,6 +295,9 @@ function Gestao() {
                                         senha: e.target.value
                                     }))
                                 }
+
+                                onKeyDown={handlerKeyDown}
+                                inputRef={senhaRef}
                             />
 
                             {/* turma */}
@@ -259,8 +309,10 @@ function Gestao() {
                                 <select
                                     id="turmaId"
                                     name="turmaId"
+                                    ref={turmaRef}
                                     value={user.turmaId || ""}
                                     onChange={(e) => setUser(dados => ({ ...dados, turmaId: e.target.value }))}
+                                    onKeyDown={handlerKeyDown}
                                     className={styles.customSelect}
                                 >
                                     <option value="">Selecione uma turma...</option>
@@ -287,6 +339,9 @@ function Gestao() {
                                         notebookId: e.target.value
                                     }))
                                 }
+
+                                onKeyDown={handlerKeyDown}
+                                inputRef={notebookRef}
                             />
                         </div>
 
