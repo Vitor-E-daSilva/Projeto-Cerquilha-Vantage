@@ -1,3 +1,7 @@
 name = "backend"
 main = "src/index.js" # Avisa onde está o arquivo principal
 compatibility_date = "2026-07-21" # Diz à Cloudflare qual versão do sistema usar
+[[d1_databases]]
+binding = "DB"
+database_id = "bf9c4716-f42b-49b4-8733-970dc5e211e9"
+remote = true
