@@ -1,102 +1,141 @@
+/* =========================================
+   1. VARIÁVEIS GERAIS (Fontes e Sombras)
+   ========================================= */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --shadow-dark: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* =========================================
+   2. SISTEMA DE TEMAS (Cores)
+   ========================================= */
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/* TEMA 1: Roxo Claro (Padrão) */
+:root, [data-theme="roxo-claro"] {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #f9fafb;             /* Fundo do site */
+  --surface: #ffffff;        /* Fundo de cards/sidebar */
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  
+  --accent: #aa3bff;         /* Cor principal (Roxo) */
+  --accent-hover: #902be0;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  
+  --current-shadow: var(--shadow);
 }
 
-body {
+/* TEMA 2: Roxo Escuro */
+[data-theme="roxo-escuro"] {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #111827;
+  --surface: #1f2937;
+  --border: #374151;
+  --code-bg: #1f2028;
+  
+  --accent: #c084fc;
+  --accent-hover: #d8b4fe;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  
+  --current-shadow: var(--shadow-dark);
+}
+
+/* TEMA 3: Vermelho Claro */
+[data-theme="vermelho-claro"] {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fef2f2;
+  --surface: #ffffff;
+  --border: #fecaca;
+  --code-bg: #f4f3ec;
+  
+  --accent: #ef4444;         /* Cor principal (Vermelho) */
+  --accent-hover: #dc2626;
+  --accent-bg: rgba(239, 68, 68, 0.1);
+  --accent-border: rgba(239, 68, 68, 0.5);
+  
+  --current-shadow: var(--shadow);
+}
+
+/* TEMA 4: Vermelho Escuro */
+[data-theme="vermelho-escuro"] {
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #171717;
+  --surface: #262626;
+  --border: #404040;
+  --code-bg: #1f2028;
+  
+  --accent: #f87171;
+  --accent-hover: #fca5a5;
+  --accent-bg: rgba(248, 113, 113, 0.15);
+  --accent-border: rgba(248, 113, 113, 0.5);
+  
+  --current-shadow: var(--shadow-dark);
+}
+
+/* =========================================
+   3. RESET E LAYOUT BASE (Responsividade)
+   ========================================= */
+* {
   margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+  padding: 0;
   box-sizing: border-box;
 }
 
-h1,
-h2 {
+body {
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Transição suave ao trocar de tema */
+  transition: background-color 0.3s ease, color 0.3s ease; 
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   4. TIPOGRAFIA RESPONSIVA
+   ========================================= */
+h1, h2, h3 {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
+  transition: color 0.3s ease;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+  font-size: clamp(32px, 5vw, 56px); /* Tamanho fluido: min 32px, max 56px */
+  letter-spacing: -1.5px;
+  margin-bottom: 24px;
 }
 
-code,
-.counter {
+h2 {
+  font-size: clamp(20px, 3vw, 24px);
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin-bottom: 16px;
+}
+
+/* Componentes pequenos */
+code, .counter {
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
@@ -108,4 +147,23 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* =========================================
+   5. CLASSES ÚTEIS (Helpers)
+   ========================================= */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--current-shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Responsividade Global para telas menores */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px; /* Reduz a fonte base no celular */
+  }
 }
