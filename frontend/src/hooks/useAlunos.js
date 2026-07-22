@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-const BASE_URL = 'http://localhost:3000/registros';
+const BASE_URL = `${import.meta.env.VITE_API_URL}/registros`;
 
 function useAlunos() {
   const [alunos, setAlunos] = useState([]);
