@@ -11,229 +11,162 @@ servidor.use('/*', cors({
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }))
 
-const registros = [] //Banco de dados com nome criativo
-let proximoId = 1 // ID automático para cada registro
-
-// Rota de POST
 servidor.post('/registros', async (c) => { 
-    const dados = await c.req.json() // pega o corpo da requisição de forma assíncrona no Hono
+    const dados = await c.req.json() // pega o corpo da requisição
 
-    //cria constantes para checar possiveis duplicatas
-    const duplicataNome = registros.find(r => r.nome.toLowerCase().trim() === dados.nome.toLowerCase().trim())
-    const duplicataEmail = registros.find(r => r.email.toLowerCase().trim() === dados.email.toLowerCase().trim())
-    // Convertido para string para garantir a checagem do trim() caso venha como número
-    const duplicataId = registros.find(r => String(r.notebookId).trim() === String(dados.notebookId).trim())
-
-    //Checagens de válidade do nome do usuário
+    // Checagens de validade básicas do Frontend (Mantidas intactas)
     if (!dados.nome || dados.nome.trim() === "") {
-        //Checa se o campo está vazio
-        return c.json({
-            erro: "Campo de nome é Obrigatório!"
-        }, 400) // Status code é passado como segundo argumento
-        
+        return c.json({ erro: "Campo de nome é Obrigatório!" }, 400)
     } else if(dados.nome.length > 100 || dados.nome.length < 3) {
-        //Checa se o nome contem o número minimo ou maximo de caracteres
-        return c.json({
-            erro: "Nome inválido, deve conter entre 3-100 caracteres"
-        }, 400)
-    } else if (duplicataNome) {
-        //Chama a constante de duplicata para checar se o usuario já existe
-        return c.json({
-            erro: "Usuário já cadastrado"
-        }, 409)
+        return c.json({ erro: "Nome inválido, deve conter entre 3-100 caracteres" }, 400)
     } 
 
     if (!dados.email) {
-        //Checa se o campo está vazio
-        return c.json({
-            erro: "Campo de email é Obrigatório!"
-        }, 400)
+        return c.json({ erro: "Campo de email é Obrigatório!" }, 400)
     } else if (dados.email.split('.').length < 2 || dados.email.split('@').length < 2) {
-        //Faz uma checagem basica de email, se contem um "@" e um "."
-        return c.json({
-            erro: "Email inválido!"
-        }, 400)
-    } else if (duplicataEmail) {
-        //Chama a constante de duplicata para checar se o usuario já existe
-        return c.json({
-            erro: "Usuário já cadastrado"
-        }, 409)
+        return c.json({ erro: "Email inválido!" }, 400)
     } 
 
     if (!dados.senha) {
-        //Checa se o usuario criou uma senha
-        return c.json({
-            erro: "Campo de senha é Obrigatório!"
-        }, 400)
+        return c.json({ erro: "Campo de senha é Obrigatório!" }, 400)
     } else if (dados.senha.length < 7) {
-        //Limita a senha para conter 
-        return c.json({
-            erro: "Senha inválida, deve conter mínimo de 7 caracteres"
-        }, 400)
+        return c.json({ erro: "Senha inválida, deve conter mínimo de 7 caracteres" }, 400)
     }
 
     if (!dados.notebookId) {
-        //Basico,  checa se está vazio
-        return c.json({
-            erro: "Número do notebook inválido!"
-        }, 400)
-    } else if (duplicataId) {
-        //Chama a constante de duplicata para checar se o usuario já existe
-        return c.json({
-            erro: "Notebook indisponível"
-        }, 409)
+        return c.json({ erro: "Número do notebook inválido!" }, 400)
     } else if(Number(dados.notebookId) < 1 || Number(dados.notebookId) > 200) {
-        // Faz uma checagem maneira para ver se o notebook tá dentro do valor esperado
-        // Convertido para Number para garantir validação correta de limite
+        return c.json({ erro: "Número do notebook inválido!" }, 400)
+    }
+
+    // CONSULTAS NO BANCO DE DADOS D1 (Substituindo o antigo array.find)
+    const duplicataEmail = await c.env.DB.prepare('SELECT id FROM alunos WHERE email = ?').bind(dados.email.trim()).first()
+    if (duplicataEmail) {
+        return c.json({ erro: "Usuário já cadastrado" }, 409)
+    } 
+
+    const duplicataId = await c.env.DB.prepare('SELECT id FROM alunos WHERE notebook_numero = ?').bind(dados.notebookId).first()
+    if (duplicataId) {
+        return c.json({ erro: "Notebook indisponível" }, 409)
+    }
+
+    try {
+        // Truque de Mestre: Garante que o Notebook Físico exista na tabela "notebooks" antes de associar ao aluno
+        await c.env.DB.prepare("INSERT OR IGNORE INTO notebooks (numero, status) VALUES (?, 'em_uso')").bind(dados.notebookId).run()
+
+        // Insere o aluno e usa "RETURNING *" para já devolver a linha recém-criada (com o ID gerado pelo banco)
+        const novoRegistro = await c.env.DB.prepare(`
+            INSERT INTO alunos (nome, email, senha, notebook_numero) 
+            VALUES (?, ?, ?, ?) RETURNING *
+        `).bind(dados.nome.trim(), dados.email.trim(), dados.senha, dados.notebookId).first()
+
         return c.json({
-            erro: "Número do notebook inválido!"
-        }, 400)
-    }
+            sucesso: true,
+            mensagem: "Registro Criado Com Sucesso!",
+            dados: novoRegistro
+        }, 201)
 
-    console.log(`Dados da requisição!
-        O que tem no corpo que o front end me mandou : ${JSON.stringify(dados)}`) // JSON.stringify para imprimir o objeto corretamente
-
-    // Adiciona ID único antes de salvar
-    const novoRegistro = {
-        id: proximoId++,
-        ...dados
+    } catch (e) {
+        console.error("Erro ao salvar no banco:", e)
+        return c.json({ erro: "Erro interno do servidor ao salvar os dados." }, 500)
     }
+})
+
+// Rota de GET (LISTAR)
+servidor.get("/registros", async (c) => {
+    // Traz a lista inteira de alunos. O .all() retorna um objeto { results: [...] }
+    const { results } = await c.env.DB.prepare('SELECT * FROM alunos').all()
     
-    registros.push(novoRegistro) // simulando salvar dados no banco
+    // Convertendo a resposta do banco para combinar com o que o Frontend já espera
+    // (O frontend espera que o número do notebook venha como "notebookId")
+    const alunosFormatados = results.map(aluno => ({
+        ...aluno,
+        notebookId: aluno.notebook_numero 
+    }))
 
-    return c.json({
-        sucesso: true,
-        mensagem: "Registro Criado Com Sucesso!",
-        dados: novoRegistro
-    }, 201) // 201 Created
+    return c.json(alunosFormatados, 200)
 })
 
-// Rota de GET
-servidor.get("/registros", (c) => {
-    return c.json(registros, 200)
-})
-
-// Rota DELETE
-servidor.delete("/registros/:id", (c) => {
-    // Parâmetros de rota no Hono são pegos com c.req.param()
+// Rota DELETE (REMOVER)
+servidor.delete("/registros/:id", async (c) => {
     const id = parseInt(c.req.param('id')) 
     
-    // Busca o índice pelo campo id, não pela posição do array
-    const index = registros.findIndex(r => r.id === id)
+    // Manda deletar e verifica quantas linhas (changes) foram apagadas
+    const info = await c.env.DB.prepare('DELETE FROM alunos WHERE id = ?').bind(id).run()
 
-    if (index === -1) {
-        return c.json({erro: "Aluno não encontrado!"}, 404) // 404 Not Found é mais semântico que 409 aqui
+    if (info.meta.changes === 0) {
+        return c.json({erro: "Aluno não encontrado!"}, 404)
     }
 
-    registros.splice(index, 1)
     return c.json({ mensagem: "Aluno removido"}, 200)
 })
 
-// Rota PUT
+// Rota PUT (ATUALIZAR)
 servidor.put("/registros/:id", async (c) => {
-    // Parâmetros de rota no Hono
     const id = parseInt(c.req.param('id'))
-    // Corpo da requisição assíncrono
     const dados = await c.req.json() 
     
-    // Busca o índice pelo campo id
-    const index = registros.findIndex(r => r.id === id)
-
-    if (index === -1) {
-        return c.json({erro: "Registro não encontrado!"}, 404) // c.json() com 404
+    // Checa se o aluno realmente existe no banco
+    const alunoExiste = await c.env.DB.prepare('SELECT id FROM alunos WHERE id = ?').bind(id).first()
+    if (!alunoExiste) {
+        return c.json({erro: "Registro não encontrado!"}, 404)
     }
 
-    // Cria uma copia de registros e depois remove o registro que está sendo modificado, serve para checar o unicidade sem gerar conflitos
-    const registrosCopia = [...registros]
-    registrosCopia.splice(index, 1)
+    // Checagem de duplicatas (EXCLUINDO o próprio ID da checagem, simulando sua antiga "registrosCopia")
+    const duplicataEmail = await c.env.DB.prepare('SELECT id FROM alunos WHERE email = ? AND id != ?').bind(dados.email.trim(), id).first()
+    const duplicataId = await c.env.DB.prepare('SELECT id FROM alunos WHERE notebook_numero = ? AND id != ?').bind(dados.notebookId, id).first()
 
-    const duplicataNome = registrosCopia.find(r => r.nome.toLowerCase().trim() === dados.nome.toLowerCase().trim())
-    const duplicataEmail = registrosCopia.find(r => r.email.toLowerCase().trim() === dados.email.toLowerCase().trim())
-    // String() para garantir compatibilidade com trim()
-    const duplicataId = registrosCopia.find(r => String(r.notebookId).trim() === String(dados.notebookId).trim())
-
-    //Checagens de válidade do nome do usuário
+    // Validações básicas (iguais ao POST)
     if (!dados.nome || dados.nome.trim() === "") { 
-        //Checa se o campo está vazio
-        return c.json({
-            erro: "Campo de nome é Obrigatório!"
-        }, 400)
-        
+        return c.json({ erro: "Campo de nome é Obrigatório!" }, 400)
     } else if(dados.nome.length > 100 || dados.nome.length < 3) {
-        //Checa se o nome contem o número minimo ou maximo de caracteres
-        return c.json({
-            erro: "Nome inválido, deve conter entre 3-100 caracteres"
-        }, 400)
-    } else if (duplicataNome) {
-        //Chama a constante de duplicata para checar se o usuario já existe
-        return c.json({
-            erro: "Usuário já cadastrado"
-        }, 409)
+        return c.json({ erro: "Nome inválido, deve conter entre 3-100 caracteres" }, 400)
     } 
 
     if (!dados.email) {
-        //Checa se o campo está vazio
-        return c.json({
-            erro: "Campo de email é Obrigatório!"
-        }, 400)
+        return c.json({ erro: "Campo de email é Obrigatório!" }, 400)
     } else if (dados.email.split('.').length < 2 || dados.email.split('@').length < 2) {
-        //Faz uma checagem basica de email, se contem um "@" e um "."
-        return c.json({
-            erro: "Email inválido!"
-        }, 400)
+        return c.json({ erro: "Email inválido!" }, 400)
     }  else if (duplicataEmail) {
-        //Chama a constante de duplicata para checar se o usuario já existe
-        return c.json({
-            erro: "Usuário já cadastrado"
-        }, 409)
+        return c.json({ erro: "Usuário já cadastrado" }, 409)
     } 
 
     if (!dados.senha) {
-        //Checa se o usuario criou uma senha
-        return c.json({
-            erro: "Campo de senha é Obrigatório!"
-        }, 400)
+        return c.json({ erro: "Campo de senha é Obrigatório!" }, 400)
     } else if (dados.senha.length < 7) {
-        //Limita a senha para conter 
-        return c.json({
-            erro: "Senha inválida, deve conter mínimo de 7 caracteres"
-        }, 400)
+        return c.json({ erro: "Senha inválida, deve conter mínimo de 7 caracteres" }, 400)
     }
 
-    if (!dados.notebookId) {
-        //Basico,  checa se está vazio
-        return c.json({
-            erro: "Número do notebook inválido!"
-        }, 400)
-    } else if(Number(dados.notebookId) < 1 || Number(dados.notebookId) > 200) {
-        // Faz uma checagem maneira para ver se o notebook tá dentro do valor esperado
-        return c.json({
-            erro: "Número do notebook inválido!"
-        }, 400)
+    if (!dados.notebookId || Number(dados.notebookId) < 1 || Number(dados.notebookId) > 200) {
+        return c.json({ erro: "Número do notebook inválido!" }, 400)
     } else if (duplicataId) {
-        //Chama a constante de duplicata para checar se o usuario já existe
-        return c.json({
-            erro: "Notebook indisponível"
-        }, 409)
+        return c.json({ erro: "Notebook indisponível" }, 409)
     }
 
-    // Mantém o ID original ao atualizar
-    registros[index] = {
-        id: registros[index].id,
-        ...dados
+    try {
+        // Garante que o notebook físico existe (caso ele esteja mudando para um número novo)
+        await c.env.DB.prepare("INSERT OR IGNORE INTO notebooks (numero, status) VALUES (?, 'em_uso')").bind(dados.notebookId).run()
+
+        // Atualiza os dados no banco
+        const registroAtualizado = await c.env.DB.prepare(`
+            UPDATE alunos 
+            SET nome = ?, email = ?, senha = ?, notebook_numero = ? 
+            WHERE id = ? RETURNING *
+        `).bind(dados.nome.trim(), dados.email.trim(), dados.senha, dados.notebookId, id).first()
+        
+        return c.json({mensagem: "Registro Atualizado com Sucesso!", dados: registroAtualizado}, 200)
+
+    } catch (e) {
+        return c.json({ erro: "Erro ao atualizar dados no banco." }, 500)
     }
-    
-    return c.json({mensagem: "Registro Atualizado com Sucesso!", dados: registros[index]}, 200)
 })
 
 // Mensagem básica da página principal do servidor
 servidor.get("/", (c) => (
     c.json({
-        mensagem: "Servidor está ligado",
-        status: "Funcional"
+        mensagem: "Servidor backend está conectado ao Cloudflare D1",
+        status: "Online e Persistente"
     })
 ))
 
-export default {
-    fetch: servidor.fetch // o export default servidor estava gerando erros, essa versão usa fetch para evitar isso
-}
+export default servidor
