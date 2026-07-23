@@ -14,7 +14,7 @@
 
 .gestaoGrid {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 1fr;
   gap: 24px;
   align-items: start;
 }
