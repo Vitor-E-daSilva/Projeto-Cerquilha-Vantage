@@ -136,7 +136,8 @@ function Gestao() {
 
     // deleta aluno selecionado
     const handlerDeletar = async (id) => {
-        const confirmado = window.confirm(`Tem certeza que deseja excluir o aluno "${nomeAluno}"? Esta ação não pode ser desfeita.`);
+        const registro = alunos.find(aluno => aluno.id === id);
+        const confirmado = window.confirm(`Tem certeza que deseja excluir o aluno "${registro.nome}"? Esta ação não pode ser desfeita.`);
         
         if (confirmado) {
             await deletarAluno(id);
