@@ -160,7 +160,7 @@ servidor.put("/registros/:id", async (c) => {
         return c.json({ erro: "A seleção de uma turma é obrigatória!" }, 400)
     }
 
-    const turmaExiste = await c.env.DB.prepare('SELECT id FROM turmas WHERE id = ?').bind(dados.turma_id).first()
+    const turmaExiste = await c.env.DB.prepare('SELECT id FROM turmas WHERE id = ?').bind(dados.turmaId).first()
     if (!turmaExiste) {
         return c.json({ erro: "A turma selecionada não existe no sistema." }, 404)
     }

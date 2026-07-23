@@ -43,9 +43,10 @@
 }
 
 .statusSuccess {
-  background-color: rgb(67, 213, 72);
-  color: var(--accent);
-  border: 1px solid rgb(0, 255, 4);
+  background-color: rgba(16, 185, 129, 0.1); 
+  color: #065f46; 
+  border: 1px solid rgba(16, 185, 129, 0.35);
+
 }
 
 .statusLoading {
