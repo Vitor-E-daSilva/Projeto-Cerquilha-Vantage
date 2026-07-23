@@ -1,30 +1,38 @@
 .managementPage {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 16px; /* Evita que o conteúdo cole nas bordas do celular */
 }
 
 .header {
   margin-bottom: 24px;
 }
 
+.header h1 {
+  font-size: 24px;
+  color: var(--text-h);
+  margin: 0 0 8px 0;
+}
+
 .header p {
   color: var(--text);
   font-size: 15px;
+  margin: 0;
 }
 
+/* MODIFICADO: minmax(0, 1fr) impede que textos longos estourem a coluna do Grid */
 .gestaoGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   align-items: start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 900px) {
-  .gestaoGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* Mensagens de Status */
 .statusMessage {
   padding: 12px 16px;
   border-radius: 6px;
@@ -34,6 +42,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  word-break: break-word;
 }
 
 .statusError {
@@ -46,7 +55,24 @@
   background-color: rgba(16, 185, 129, 0.1); 
   color: #065f46; 
   border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+}
 
+.statusSuccess::before {
+  content: "✓";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
 .statusLoading {
@@ -55,17 +81,20 @@
   border: 1px solid var(--border);
 }
 
+/* Formulário */
 .inputsStack {
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .formActions {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .btnCancel {
@@ -85,6 +114,7 @@
   color: var(--text-h);
 }
 
+/* Lista e Itens dos Alunos */
 .alunosList {
   list-style: none;
   padding: 0;
@@ -92,6 +122,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 
 .alunoItem {
@@ -103,6 +134,8 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   transition: border-color 0.2s ease, transform 0.2s ease;
+  min-width: 0; /* Garante estouro zero dentro de contêineres flex */
+  box-sizing: border-box;
 }
 
 .alunoItem:hover {
@@ -114,17 +147,24 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0; /* Permite truncar ou quebrar e-mails longos */
 }
 
 .alunoName {
   font-size: 15px;
   font-weight: 600;
   color: var(--text-h);
+  word-break: break-word;
 }
 
 .alunoSub {
   font-size: 13px;
   color: var(--text);
+  display: flex;
+  flex-wrap: wrap; /* Permite que os badges desçam de linha se o e-mail for grande */
+  align-items: center;
+  gap: 6px;
+  word-break: break-word;
 }
 
 .alunoBadge {
@@ -135,12 +175,13 @@
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
-  margin-left: 6px;
+  white-space: nowrap;
 }
 
 .alunoActions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0; /* Impede que os botões esmaguem em telas pequenas */
 }
 
 .btnAction {
@@ -194,7 +235,6 @@
   text-align: left;
 }
 
-/* Rótulo / Label */
 .selectLabel {
   font-size: 13px;
   font-weight: 600;
@@ -202,7 +242,7 @@
   letter-spacing: 0.2px;
 }
 
-/* Estilização do Select */
+/* Select customizado com SVG codificado para URL */
 .customSelect {
   width: 100%;
   padding: 10px 36px 10px 14px;
@@ -219,7 +259,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6375' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
@@ -241,6 +281,7 @@
   opacity: 0.6;
 }
 
+/* Campo de Pesquisa */
 .searchInput {
   width: 100%;
   padding: 10px 14px;
@@ -255,14 +296,50 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Estado de Foco (quando o usuário clica para pesquisar) */
 .searchInput:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-/* Estilização do texto temporário (Placeholder) */
 .searchInput::placeholder {
   color: var(--text);
   opacity: 0.6;
+}
+
+/* =========================================
+   REGRAS DE ADAPTAÇÃO PARA DISPOSITIVOS MÓVEIS
+========================================= */
+@media (max-width: 600px) {
+  .managementPage {
+    padding: 0 12px;
+  }
+
+  .alunoItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .alunoActions {
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .btnAction {
+    flex: 1;
+    text-align: center;
+  }
+
+  .formActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btnCancel {
+    width: 100%;
+    text-align: center;
+  }
 }
