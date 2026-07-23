@@ -83,63 +83,6 @@ function Gestao() {
         setErroForm("");
         setSucessoForm(false);
 
-        // 1. Valida nome
-        if (!user.nome || user.nome.trim().length < 3) {
-            setErroForm("O nome deve ter no mínimo 3 caracteres.");
-            if (nomeRef.current) nomeRef.current.focus();
-            return;
-        }
-
-        // 2. Valida e-mail
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!user.email || !emailRegex.test(user.email.trim())) {
-            setErroForm("E-mail inválido! Digite no formato exemplo@email.com.");
-            if (emailRef.current) emailRef.current.focus();
-            return;
-        }
-
-        // Valida e-mail duplicado
-        const emailExiste = alunos.some(
-            a => a.email.toLowerCase() === user.email.trim().toLowerCase() && a.id !== indiceEditando
-        );
-        if (emailExiste) {
-            setErroForm("Este e-mail já está cadastrado.");
-            if (emailRef.current) emailRef.current.focus();
-            return;
-        }
-
-        // 3. Valida senha
-        if (!user.senha || user.senha.length < 7) {
-            setErroForm("Senha inválida, deve conter mínimo de 7 caracteres.");
-            if (senhaRef.current) senhaRef.current.focus();
-            return;
-        }
-
-        // 4. Valida turma
-        if (!user.turmaId) {
-            setErroForm("Selecione uma turma para o aluno.");
-            if (turmaRef.current) turmaRef.current.focus();
-            return;
-        }
-
-        // 5. Valida notebook
-        const numNotebook = Number(user.notebookId);
-        if (isNaN(numNotebook) || numNotebook < 1 || numNotebook > 200) {
-            setErroForm("Número do notebook inválido! Deve ser entre 1 e 200.");
-            if (notebookRef.current) notebookRef.current.focus();
-            return;
-        }
-
-        // Valida notebook duplicado
-        const notebookExiste = alunos.some(
-            a => Number(a.notebookId) === numNotebook && a.id !== indiceEditando
-        );
-        if (notebookExiste) {
-            setErroForm(`O notebook #${numNotebook} já está alocado para outro aluno.`);
-            if (notebookRef.current) notebookRef.current.focus();
-            return;
-        }
-
         // Se passar por todas as validações, envia para o backend
         if (indiceEditando !== null) {
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useAlunos from "../../hooks/useAlunos";
 import styles from "./Dashboard.module.css";
-// Importações do Recharts para desenhar os gráficos
+// Importações do Recharts
 import { 
   PieChart, Pie, Cell, 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend 
@@ -9,33 +9,35 @@ import {
 
 function Dashboard() {
   const { carregando, erro, metricas } = useAlunos();
-  const [abaAtiva, setAbaAtiva] = useState("geral"); // 'geral' | 'turmas'
+  const [abaAtiva, setAbaAtiva] = useState("geral"); 
 
-  // Prepara as cores para o gráfico de rosca (Turnos)
-  const CORES_TURNOS = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b"];
+  const CORES_TURNOS = {
+    "Manhã": "#3b82f6",
+    "Tarde": "#f59e0b",
+    "Noite": "#8b5cf6",
+    "Não Informado": "#9ca3af"
+  };
 
-  // Formata os dados de turno do objeto para o array exigido pelo Recharts
-  const dadosTurno = metricas?.alunosPorTurno 
-    ? Object.keys(metricas.alunosPorTurno).map((chave) => ({
-        name: chave,
-        value: metricas.alunosPorTurno[chave],
-      }))
-    : [];
-
-  if (carregando && !metricas) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Carregando dados do Dashboard...</div>;
+  // Se estiver carregando OU se a métrica ainda for nula, mostra a tela de carregamento antes de tentar ler qualquer coisa!
+  if (carregando || !metricas) {
+    return <div className={styles.loadingState}>Calculando métricas da frota...</div>;
   }
 
   if (erro) {
-    return <div className={styles.emptyState}>Erro ao carregar métricas: {erro}</div>;
+    return <div className={styles.emptyState}>Ocorreu um problema ao carregar as métricas: {erro}</div>;
   }
+
+  // AGORA É SEGURO LER! Pois já garantimos que "metricas" existe logo acima.
+  // O banco já manda o array prontinho!
+  const dadosTurno = metricas?.alunosPorTurno || [];
+  const dadosTurmas = metricas?.alunosPorTurma || [];
 
   return (
     <div className={styles.dashboardContainer}>
 
       <header className={styles.header}>
         <h1>Dashboard Analítico</h1>
-        <p>Acompanhamento em tempo real da alocação de equipamentos.</p>
+        <p>Acompanhamento em tempo real da alocação de equipamentos por turmas e turnos.</p>
       </header>
 
       {/* Navegação por Abas */}
@@ -58,9 +60,9 @@ function Dashboard() {
           ABA 1: VISÃO GERAL
       ========================================= */}
       {abaAtiva === "geral" && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease' }}>
+        <div className={styles.tabContent}>
           
-          {/* Grid de KPIs (Métricas Principais) */}
+          {/* Grid de KPIs */}
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
               <div className={`${styles.iconContainer} ${styles.blue}`}>👥</div>
@@ -95,25 +97,24 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Gráficos da Visão Geral */}
           <div className={styles.chartsGrid}>
             
             {/* Gráfico de Rosca - Distribuição por Turno */}
             <div className={styles.chartCard}>
               <h2>Distribuição por Turno</h2>
               {dadosTurno.length > 0 ? (
-                <div className={styles.chartWrapper}>
-                  <ResponsiveContainer width="100%" height="100%">
+                <div style={{ width: '100%', height: '300px' }}>
+                  <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
                         data={dadosTurno}
-                        innerRadius={70}
-                        outerRadius={100}
+                        innerRadius={80}
+                        outerRadius={110}
                         paddingAngle={5}
                         dataKey="value"
                       >
                         {dadosTurno.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={CORES_TURNOS[index % CORES_TURNOS.length]} />
+                          <Cell key={`cell-${index}`} fill={CORES_TURNOS[entry.name] || "#9ca3af"} />
                         ))}
                       </Pie>
                       <Tooltip 
@@ -130,23 +131,25 @@ function Dashboard() {
             </div>
 
             {/* Status da Frota (Medidor Simples) */}
-            <div className={styles.chartCard} style={{ justifyContent: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
+            <div className={`${styles.chartCard} ${styles.centerCard}`}>
+              <div>
                 <h2 style={{ marginBottom: '8px' }}>Capacidade do Inventário</h2>
                 <p style={{ color: 'var(--text)', marginBottom: '30px' }}>Ocupação atual dos {metricas.limiteNotebooks} notebooks.</p>
                 
                 <div style={{ width: '100%', backgroundColor: 'var(--border)', height: '24px', borderRadius: '12px', overflow: 'hidden' }}>
                   <div style={{ 
                     width: `${metricas.taxaOcupacao}%`, 
-                    backgroundColor: metricas.taxaOcupacao > 90 ? '#ef4444' : '#8b5cf6', 
+                    backgroundColor: metricas.taxaOcupacao > 90 ? '#ef4444' : 'var(--accent)', 
                     height: '100%', 
-                    transition: 'width 1s ease-out' 
+                    transition: 'width 1.5s cubic-bezier(0.16, 1, 0.3, 1)' 
                   }} />
                 </div>
                 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '14px', color: 'var(--text-h)', fontWeight: '500' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '14px', color: 'var(--text-h)', fontWeight: '600' }}>
                   <span>0%</span>
-                  <span>{metricas.taxaOcupacao}% Utilizado</span>
+                  <span style={{ color: metricas.taxaOcupacao > 90 ? '#ef4444' : 'var(--accent)' }}>
+                    {metricas.taxaOcupacao}% Utilizado
+                  </span>
                   <span>100%</span>
                 </div>
               </div>
@@ -160,40 +163,46 @@ function Dashboard() {
           ABA 2: ANÁLISE POR TURMA
       ========================================= */}
       {abaAtiva === "turmas" && (
-        <div className={styles.chartCard} style={{ animation: 'fadeIn 0.3s ease' }}>
-          <h2>Alunos Alocados por Turma</h2>
-          
-          {metricas?.alunosPorTurma && metricas.alunosPorTurma.length > 0 ? (
-            <div className={styles.chartWrapper} style={{ minHeight: '400px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={metricas.alunosPorTurma}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 50 }}
-                >
-                  <XAxis 
-                    dataKey="nome" 
-                    tick={{ fill: 'var(--text)' }} 
-                    angle={-45} 
-                    textAnchor="end" 
-                    height={70} 
-                  />
-                  <YAxis tick={{ fill: 'var(--text)' }} allowDecimals={false} />
-                  <Tooltip 
-                    cursor={{ fill: 'var(--accent-bg)' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Bar 
-                    dataKey="totalAlunos" 
-                    name="Qtd. Alunos" 
-                    fill="#3b82f6" 
-                    radius={[4, 4, 0, 0]} 
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className={styles.emptyState}>Nenhuma turma cadastrada ou com alunos.</div>
-          )}
+        <div className={styles.tabContent}>
+          <div className={styles.chartCard}>
+            <h2>Densidade de Alunos por Turma</h2>
+            
+            {dadosTurmas.length > 0 ? (
+              <div style={{ width: '100%', height: '400px', marginTop: '20px' }}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart
+                    data={dadosTurmas}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 40 }}
+                  >
+                    <XAxis 
+                      dataKey="nome" 
+                      tick={{ fill: 'var(--text)' }} 
+                      tickMargin={10}
+                    />
+                    <YAxis 
+                      tick={{ fill: 'var(--text)' }} 
+                      allowDecimals={false} 
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      cursor={{ fill: 'var(--accent-bg)', opacity: 0.4 }}
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      formatter={(value) => [value, "Alunos"]}
+                    />
+                    <Bar 
+                      dataKey="totalAlunos" 
+                      fill="var(--accent)" 
+                      radius={[6, 6, 0, 0]} 
+                      barSize={40}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className={styles.emptyState}>Nenhuma turma cadastrada no sistema.</div>
+            )}
+          </div>
         </div>
       )}
 

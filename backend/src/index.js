@@ -263,6 +263,58 @@ servidor.post('/dev/seed', async (c) => {
   }
 });
 
+// Rota de métricas
+servidor.get("/metricas", async (c) => {
+    try {
+        const db = c.env.DB;
+
+        // 1. Pega os totais gerais (Quantos alunos e quantos notebooks únicos estão em uso)
+        const totais = await db.prepare(`
+            SELECT 
+                COUNT(id) as totalAlunos, 
+                COUNT(DISTINCT notebook_numero) as notebooksEmUso 
+            FROM alunos
+        `).first();
+
+        // 2. Pega a distribuição por Turno (Já formata para o Recharts {name, value})
+        const { results: turnos } = await db.prepare(`
+            SELECT t.turno as name, COUNT(a.id) as value 
+            FROM alunos a 
+            JOIN turmas t ON a.turma_id = t.id 
+            GROUP BY t.turno
+        `).all();
+
+        // 3. Pega a distribuição por Turma
+        const { results: turmasStats } = await db.prepare(`
+            SELECT t.nome, t.turno, COUNT(a.id) as totalAlunos 
+            FROM turmas t 
+            LEFT JOIN alunos a ON t.id = a.turma_id 
+            GROUP BY t.id
+        `).all();
+
+        // Cálculos finais da Frota
+        const limiteNotebooks = 200;
+        const totalAlunos = totais.totalAlunos || 0;
+        const notebooksEmUso = totais.notebooksEmUso || 0;
+        const notebooksDisponiveis = Math.max(0, limiteNotebooks - notebooksEmUso);
+        const taxaOcupacao = Math.round((notebooksEmUso / limiteNotebooks) * 100) || 0;
+
+        return c.json({
+            totalAlunos,
+            notebooksEmUso,
+            notebooksDisponiveis,
+            taxaOcupacao,
+            limiteNotebooks,
+            alunosPorTurno: turnos, // O Hono já envia no formato que o Gráfico precisa
+            alunosPorTurma: turmasStats
+        }, 200);
+
+    } catch (e) {
+        console.error("Erro ao gerar métricas:", e);
+        return c.json({ erro: "Erro ao calcular métricas no banco de dados." }, 500);
+    }
+});
+
 // Mensagem básica da página principal do servidor
 servidor.get("/", (c) => (
     c.json({
