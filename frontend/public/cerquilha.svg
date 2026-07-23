@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org" viewBox="0 0 200 200" fill="none">
+  <!-- Fundo com gradiente e cantos arredondados -->
+  <rect width="200" height="200" rx="120" fill="url(#gradiente_roxo)" />
+
+  <!-- Traços da Cerquilha (#) -->
+  <path
+    d="M208 120 L160 392 M352 120 L304 392 M120 208 L408 208 M104 304 L392 304"
+    stroke="#ffffff"
+    stroke-width="44"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Definição das cores do gradiente -->
+  <defs>
+    <linearGradient id="gradiente_roxo" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A855F7" /> <!-- Roxo Vibrante -->
+      <stop offset="1" stop-color="#4C1D95" /> <!-- Roxo Profundo -->
+    </linearGradient>
+  </defs>
+</svg>
