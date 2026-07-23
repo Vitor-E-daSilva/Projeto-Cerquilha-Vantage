@@ -181,7 +181,7 @@ servidor.delete('/dev/limpar', async (c) => {
 });
 
 // 2. Rota para popular o banco (Seed)
-app.post('/dev/seed', async (c) => {
+servidor.post('/dev/seed', async (c) => {
   try {
     const db = c.env.DB;
 
