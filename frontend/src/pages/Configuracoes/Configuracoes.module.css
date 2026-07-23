@@ -11,16 +11,22 @@
 }
 
 .header h1 {
-  margin: 0 0 6px 0;
-  font-size: 24px;
-  color: var(--text-h);
-  font-weight: 700;
+  margin-bottom: 8px;
 }
 
 .header p {
-  margin: 0;
   color: var(--text);
   font-size: 15px;
+}
+
+.feedbackBanner {
+  padding: 12px 16px;
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .sectionHeader {
@@ -28,14 +34,12 @@
 }
 
 .sectionHeader h2 {
-  margin: 0 0 4px 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-h);
+  margin-bottom: 4px;
 }
 
 .sectionHeader p {
-  margin: 0;
   color: var(--text);
   font-size: 14px;
 }
