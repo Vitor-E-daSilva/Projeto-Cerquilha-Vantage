@@ -87,6 +87,19 @@ servidor.get("/registros", async (c) => {
     return c.json(alunosFormatados, 200)
 })
 
+// Rota GET (LISTAR TURMAS)
+servidor.get("/turmas", async (c) => {
+    try {
+        // Busca todas as turmas cadastradas no banco D1
+        const { results } = await c.env.DB.prepare('SELECT * FROM turmas').all()
+        
+        return c.json(results, 200)
+    } catch (e) {
+        console.error("Erro ao listar turmas:", e)
+        return c.json({ erro: "Erro interno do servidor ao buscar as turmas." }, 500)
+    }
+})
+
 // Rota DELETE (REMOVER)
 servidor.delete("/registros/:id", async (c) => {
     const id = parseInt(c.req.param('id')) 
@@ -143,6 +156,15 @@ servidor.put("/registros/:id", async (c) => {
         return c.json({ erro: "Notebook indisponível" }, 409)
     }
 
+    if (!dados.turmaId || Number(dados.turmaId) <= 0) {
+        return c.json({ erro: "A seleção de uma turma é obrigatória!" }, 400)
+    }
+
+    const turmaExiste = await c.env.DB.prepare('SELECT id FROM turmas WHERE id = ?').bind(dados.turma_id).first()
+    if (!turmaExiste) {
+        return c.json({ erro: "A turma selecionada não existe no sistema." }, 404)
+    }
+
     try {
         // Garante que o notebook físico existe (caso ele esteja mudando para um número novo)
         await c.env.DB.prepare("INSERT OR IGNORE INTO notebooks (numero, status) VALUES (?, 'em_uso')").bind(dados.notebookId).run()
@@ -150,9 +172,9 @@ servidor.put("/registros/:id", async (c) => {
         // Atualiza os dados no banco
         const registroAtualizado = await c.env.DB.prepare(`
             UPDATE alunos 
-            SET nome = ?, email = ?, senha = ?, notebook_numero = ? 
+            SET nome = ?, email = ?, senha = ?, turma_id = ?, notebook_numero = ? 
             WHERE id = ? RETURNING *
-        `).bind(dados.nome.trim(), dados.email.trim(), dados.senha, dados.notebookId, id).first()
+        `).bind(dados.nome.trim(), dados.email.trim(), dados.senha, dados.turmaId, dados.notebookId, id).first()
         
         return c.json({mensagem: "Registro Atualizado com Sucesso!", dados: registroAtualizado}, 200)
 
@@ -204,7 +226,7 @@ servidor.post('/dev/seed', async (c) => {
 
     // Query 2: Inserindo alunos de teste vinculados às turmas
     const seedAlunos = db.prepare(`
-      INSERT INTO alunos (nome, email, senha, turmaId, notebookId) VALUES 
+      INSERT INTO alunos (nome, email, senha, turma_id, notebook_numero) VALUES 
       ('João Silva', 'joao.silva@cerquilha.br', 'senha123', 1, 10),
       ('Maria Oliveira', 'maria.oliveira@cerquilha.br', 'senha123', 1, 11),
       ('Pedro Santos', 'pedro.santos@cerquilha.br', 'senha123', 1, 12),
@@ -223,8 +245,8 @@ servidor.post('/dev/seed', async (c) => {
       ('Mariana Cardoso', 'mariana.cardoso@cerquilha.br', 'senha123', 6, 25),
       ('Gustavo Dias', 'gustavo.dias@cerquilha.br', 'senha123', 6, 26),
       ('Amanda Castro', 'amanda.castro@cerquilha.br', 'senha123', 6, 27),
-      ('Rodrigo Souza', 'rodrigo.souza@cerquilha.br', 'senha123', 7, 28),
-      ('Bruna Fernandes', 'bruna.fernandes@cerquilha.br', 'senha123', 7, 29);
+      ('Rodrigo Souza', 'rodrigo.souza@cerquilha.br', 'senha123', 6, 28),
+      ('Bruna Fernandes', 'bruna.fernandes@cerquilha.br', 'senha123', 6, 29);
     `);
 
     // Executa as duas inserções de uma vez usando batch
