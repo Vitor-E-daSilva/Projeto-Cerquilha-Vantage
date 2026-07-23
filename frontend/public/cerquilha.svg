@@ -1,21 +1,15 @@
-<svg xmlns="http://www.w3.org" viewBox="0 0 200 200" fill="none">
-  <!-- Fundo com gradiente e cantos arredondados -->
-  <rect width="200" height="200" rx="120" fill="url(#gradiente_roxo)" />
-
-  <!-- Traços da Cerquilha (#) -->
-  <path
-    d="M208 120 L160 392 M352 120 L304 392 M120 208 L408 208 M104 304 L392 304"
-    stroke="#ffffff"
-    stroke-width="44"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
-
-  <!-- Definição das cores do gradiente -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <linearGradient id="gradiente_roxo" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A855F7" /> <!-- Roxo Vibrante -->
-      <stop offset="1" stop-color="#4C1D95" /> <!-- Roxo Profundo -->
+    <!-- Gradiente moderno combinando com o tema do sistema -->
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#7c3aed" />
     </linearGradient>
   </defs>
+  
+  <!-- Fundo Arredondado -->
+  <rect width="64" height="64" rx="16" fill="url(#grad)"/>
+  
+  <!-- Símbolo Cerquilha (#) Estilizado -->
+  <path d="M23.5 16h5.2l-2.8 32h-5.2l2.8-32zm16.8 0h5.2l-2.8 32h-5.2l2.8-32zM15 26h36v4H15v-4zm-2 14h36v4H13v-4z" fill="#ffffff"/>
 </svg>
