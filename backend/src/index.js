@@ -161,6 +161,86 @@ servidor.put("/registros/:id", async (c) => {
     }
 })
 
+// Rotas dev (limpeza e povoamento do banco de dados)
+servidor.delete('/dev/limpar', async (c) => {
+  try {
+    const db = c.env.DB; // Acessa o banco D1 configurado no wrangler.toml
+
+    // Deleta todos os registros das duas tabelas
+    await db.batch([
+      db.prepare('DELETE FROM alunos'),
+      db.prepare('DELETE FROM turmas')
+    ]);
+
+    return c.json({ sucesso: true, mensagem: 'Banco de dados esvaziado com sucesso.' }, 200);
+
+  } catch (erro) {
+    console.error("Erro ao limpar banco:", erro);
+    return c.json({ erro: 'Falha ao esvaziar o banco de dados.', detalhes: erro.message }, 500);
+  }
+});
+
+// 2. Rota para popular o banco (Seed)
+app.post('/dev/seed', async (c) => {
+  try {
+    const db = c.env.DB;
+
+    // Opcional: Esvaziar antes de popular para evitar duplicações de testes
+    await db.batch([
+      db.prepare('DELETE FROM alunos'),
+      db.prepare('DELETE FROM turmas')
+    ]);
+
+    // Query 1: Criando as turmas base (Fixando o ID para garantir o relacionamento)
+    const seedTurmas = db.prepare(`
+      INSERT INTO turmas (id, nome, turno) VALUES 
+      (1, 'T04A', 'Manhã'),
+      (2, 'T04B', 'Manhã'),
+      (3, 'T05A', 'Tarde'),
+      (4, 'T05B', 'Tarde'),
+      (5, 'T06A', 'Noite'),
+      (6, 'T06B', 'Noite')
+    `);
+
+    // Query 2: Inserindo alunos de teste vinculados às turmas
+    const seedAlunos = db.prepare(`
+      INSERT INTO alunos (nome, email, senha, turmaId, notebookId) VALUES 
+      ('João Silva', 'joao.silva@cerquilha.br', 'senha123', 1, 10),
+      ('Maria Oliveira', 'maria.oliveira@cerquilha.br', 'senha123', 1, 11),
+      ('Pedro Santos', 'pedro.santos@cerquilha.br', 'senha123', 1, 12),
+      ('Ana Costa', 'ana.costa@cerquilha.br', 'senha123', 2, 13),
+      ('Lucas Pereira', 'lucas.pereira@cerquilha.br', 'senha123', 2, 14),
+      ('Juliana Lima', 'juliana.lima@cerquilha.br', 'senha123', 2, 15),
+      ('Marcos Rodrigues', 'marcos.rodrigues@cerquilha.br', 'senha123', 3, 16),
+      ('Fernanda Alves', 'fernanda.alves@cerquilha.br', 'senha123', 3, 17),
+      ('Gabriel Gomes', 'gabriel.gomes@cerquilha.br', 'senha123', 3, 18),
+      ('Camila Martins', 'camila.martins@cerquilha.br', 'senha123', 4, 19),
+      ('Rafael Barbosa', 'rafael.barbosa@cerquilha.br', 'senha123', 4, 20),
+      ('Letícia Ribeiro', 'leticia.ribeiro@cerquilha.br', 'senha123', 4, 21),
+      ('Thiago Carvalho', 'thiago.carvalho@cerquilha.br', 'senha123', 5, 22),
+      ('Beatriz Rocha', 'beatriz.rocha@cerquilha.br', 'senha123', 5, 23),
+      ('Felipe Mendes', 'felipe.mendes@cerquilha.br', 'senha123', 5, 24),
+      ('Mariana Cardoso', 'mariana.cardoso@cerquilha.br', 'senha123', 6, 25),
+      ('Gustavo Dias', 'gustavo.dias@cerquilha.br', 'senha123', 6, 26),
+      ('Amanda Castro', 'amanda.castro@cerquilha.br', 'senha123', 6, 27),
+      ('Rodrigo Souza', 'rodrigo.souza@cerquilha.br', 'senha123', 7, 28),
+      ('Bruna Fernandes', 'bruna.fernandes@cerquilha.br', 'senha123', 7, 29);
+    `);
+
+    // Executa as duas inserções de uma vez usando batch
+    await db.batch([
+      seedTurmas,
+      seedAlunos
+    ]);
+
+    return c.json({ sucesso: true, mensagem: 'Dados de teste populados com sucesso.' }, 201);
+
+  } catch (erro) {
+    console.error("Erro ao popular banco:", erro);
+    return c.json({ erro: 'Falha ao inserir dados de teste.', detalhes: erro.message }, 500);
+  }
+});
+
 // Mensagem básica da página principal do servidor
 servidor.get("/", (c) => (
     c.json({
