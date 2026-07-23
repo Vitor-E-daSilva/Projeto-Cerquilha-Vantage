@@ -19,6 +19,7 @@ function Gestao() {
         turmaId: "",
         notebookId: ""
     });
+
     // Estado para o campo de pesquisa na lista de alunos
     const [termoPesquisa, setTermoPesquisa] = useState("");
     
@@ -41,9 +42,7 @@ function Gestao() {
     } = useAlunos();
 
     useEffect(() => {  // monitora sucesso vindo do hook
-
         if (sucesso) {
-
             setSucessoForm(true);
 
             // limpa formulário depois da operação
@@ -58,44 +57,86 @@ function Gestao() {
             // sai do modo edição
             setIndiceEditando(null);
         }
-
     }, [sucesso]);
 
     // limpa mensagem de sucesso depois de 4 segundos
     useEffect(() => {
-
         if (sucessoForm) {
-
             const timer = setTimeout(() => {
-
                 setSucessoForm(false);
-
             }, 4000);
 
             return () => clearTimeout(timer);
         }
-
     }, [sucessoForm]);
 
-    // envia formulário com validações completas
+    // ENVIA FORMULÁRIO COM CHECAGEM DE VALIDAÇÃO E FOCO AUTOMÁTICO NO USEREF
     const handlerSubmit = async (e) => {
-
         if (e) e.preventDefault();
 
         setErroForm("");
         setSucessoForm(false);
 
+        // 1. Validação do Nome
+        if (!user.nome || user.nome.trim().length < 3 || user.nome.length > 100) {
+            setErroForm("Nome inválido, deve conter entre 3 e 100 caracteres.");
+            if (nomeRef.current) nomeRef.current.focus();
+            return;
+        }
+
+        // 2. Validação do E-mail (formato básico)
+        if (!user.email || !user.email.includes("@") || !user.email.includes(".") || user.email.split('.').length < 2 || user.email.split('@').length < 2) {
+            setErroForm("E-mail inválido! Formato correto: exemplo@email.com.");
+            if (emailRef.current) emailRef.current.focus();
+            return;
+        }
+
+        // 3. Validação da Senha
+        if (!user.senha || user.senha.length < 7) {
+            setErroForm("Senha inválida, deve conter mínimo de 7 caracteres.");
+            if (senhaRef.current) senhaRef.current.focus();
+            return;
+        }
+
+        // 4. Validação da Turma
+        if (!user.turmaId || Number(user.turmaId) <= 0) {
+            setErroForm("Selecione uma turma válida para o aluno.");
+            if (turmaRef.current) turmaRef.current.focus();
+            return;
+        }
+
+        // 5. Validação do Número do Notebook (Intervalo)
+        const numNotebook = Number(user.notebookId);
+        if (isNaN(numNotebook) || numNotebook < 1 || numNotebook > 200) {
+            setErroForm("Número do notebook inválido! Deve ser entre 1 e 200.");
+            if (notebookRef.current) notebookRef.current.focus();
+            return;
+        }
+
+        // 6. Checagem local de E-mail Duplicado
+        const emailDuplicado = alunos.some(
+            (a) => a.email.toLowerCase() === user.email.trim().toLowerCase() && a.id !== indiceEditando
+        );
+        if (emailDuplicado) {
+            setErroForm("Este e-mail já está cadastrado.");
+            if (emailRef.current) emailRef.current.focus();
+            return;
+        }
+
+        // 7. Checagem local de Notebook em Uso
+        const notebookDuplicado = alunos.some(
+            (a) => Number(a.notebookId || a.notebook_numero) === numNotebook && a.id !== indiceEditando
+        );
+        if (notebookDuplicado) {
+            setErroForm(`O notebook #${numNotebook} já está em uso por outro aluno.`);
+            if (notebookRef.current) notebookRef.current.focus();
+            return;
+        }
+
         // Se passar por todas as validações, envia para o backend
         if (indiceEditando !== null) {
-
-            await editarAluno(
-                indiceEditando,
-                user
-            );
-
+            await editarAluno(indiceEditando, user);
         } else {
-
-            // cria aluno novo
             await criarAluno(user);
         }
     };
@@ -109,35 +150,28 @@ function Gestao() {
 
     // carrega dados do aluno no formulário
     const handlerEditar = (id) => {
+        const registro = alunos.find(aluno => aluno.id === id);
 
-        // procura aluno pelo id
-        const registro = alunos.find(
-            aluno => aluno.id === id
-        );
+        if (registro) {
+            setUser({
+                nome: registro.nome,
+                email: registro.email,
+                senha: registro.senha || "",
+                turmaId: registro.turmaId || registro.turma_id || "",
+                notebookId: registro.notebookId || registro.notebook_numero
+            });
 
-        // coloca dados no formulário
-        setUser({
-            nome: registro.nome,
-            email: registro.email,
-            senha: registro.senha || "",
-            turmaId: registro.turmaId || "",
-            notebookId: registro.notebookId
-        });
+            setIndiceEditando(id);
 
-        // activa modo edição
-        setIndiceEditando(id);
-
-        // coloca cursor no input nome
-        if (nomeRef.current) {
-
-            nomeRef.current.focus();
+            if (nomeRef.current) {
+                nomeRef.current.focus();
+            }
         }
     };
 
-    // deleta aluno selecionado
-    const handlerDeletar = async (id) => {
-        const registro = alunos.find(aluno => aluno.id === id);
-        const confirmado = window.confirm(`Tem certeza que deseja excluir o aluno "${registro.nome}"? Esta ação não pode ser desfeita.`);
+    // deleta aluno selecionado com confirmação
+    const handlerDeletar = async (id, nomeAluno) => {
+        const confirmado = window.confirm(`Tem certeza que deseja excluir o aluno "${nomeAluno}"? Esta ação não pode ser desfeita.`);
         
         if (confirmado) {
             await deletarAluno(id);
@@ -148,7 +182,6 @@ function Gestao() {
     const alunosFiltrados = alunos.filter(item => {
         const termo = termoPesquisa.toLowerCase();
         
-        // Descobre o nome e o turno da turma do aluno para permitir a busca por turma também
         const turmaDoAluno = turmas.find(t => Number(t.id) === Number(item.turmaId || item.turma_id));
         const nomeTurma = turmaDoAluno ? turmaDoAluno.nome.toLowerCase() : "";
         const turnoTurma = turmaDoAluno ? turmaDoAluno.turno.toLowerCase() : "";
@@ -167,7 +200,6 @@ function Gestao() {
     });
 
     return (
-
         <div className={styles.managementPage}>
 
             <header className={styles.header}>
@@ -196,7 +228,6 @@ function Gestao() {
 
                         {/* erro local ou erro vindo do backend */}
                         {(erroForm || erro) && (
-
                             <p className={`${styles.statusMessage} ${styles.statusError}`}>
                                 {erroForm || erro}
                             </p>
@@ -204,7 +235,6 @@ function Gestao() {
 
                         {/* sucesso */}
                         {sucessoForm && (
-
                             <p className={`${styles.statusMessage} ${styles.statusSuccess}`}>
                                 Operação realizada com sucesso!
                             </p>
@@ -218,15 +248,12 @@ function Gestao() {
                                 name="nome"
                                 placeholder="Ex: Portgas D. Ace"
                                 value={user.nome}
-
                                 onChange={(e) =>
-
                                     setUser(dados => ({
                                         ...dados,
                                         nome: e.target.value
                                     }))
                                 }
-
                                 onKeyDown={handlerKeyDown}
                                 inputRef={nomeRef}
                             />
@@ -238,15 +265,12 @@ function Gestao() {
                                 name="email"
                                 placeholder="exemplo@email.com"
                                 value={user.email}
-
                                 onChange={(e) =>
-
                                     setUser(dados => ({
                                         ...dados,
                                         email: e.target.value
                                     }))
                                 }
-
                                 onKeyDown={handlerKeyDown}
                                 inputRef={emailRef}
                             />
@@ -258,15 +282,12 @@ function Gestao() {
                                 name="senha"
                                 placeholder="Mínimo 7 caracteres"
                                 value={user.senha}
-
                                 onChange={(e) =>
-
                                     setUser(dados => ({
                                         ...dados,
                                         senha: e.target.value
                                     }))
                                 }
-
                                 onKeyDown={handlerKeyDown}
                                 inputRef={senhaRef}
                             />
@@ -302,15 +323,12 @@ function Gestao() {
                                 name="notebookId"
                                 placeholder="Número entre 1 e 200"
                                 value={user.notebookId}
-
                                 onChange={(e) =>
-
                                     setUser(dados => ({
                                         ...dados,
                                         notebookId: e.target.value
                                     }))
                                 }
-
                                 onKeyDown={handlerKeyDown}
                                 inputRef={notebookRef}
                             />
@@ -318,7 +336,6 @@ function Gestao() {
 
                         {/* botões */}
                         <div className={styles.formActions}>
-
                             <Botao
                                 texto={
                                     indiceEditando !== null
@@ -329,16 +346,11 @@ function Gestao() {
 
                             {/* botão cancelar edição */}
                             {indiceEditando !== null && (
-
                                 <button
                                     type="button"
                                     className={styles.btnCancel}
                                     onClick={() => {
-
-                                        // sai modo edição
                                         setIndiceEditando(null);
-
-                                        // limpa formulário
                                         setUser({
                                             nome: '',
                                             email: '',
@@ -346,16 +358,12 @@ function Gestao() {
                                             turmaId: '',
                                             notebookId: ''
                                         });
-
                                         setErroForm("");
                                     }}
                                 >
-
                                     Cancelar
-
                                 </button>
                             )}
-
                         </div>
 
                     </form>
@@ -373,7 +381,7 @@ function Gestao() {
                         </span>
                     </div>
 
-                    {/* Input de Pesquisa por Turma, Aluno ou Notebook */}
+                    {/* Input de Pesquisa */}
                     <div style={{ marginBottom: '20px' }}>
                         <input
                             type="text"
@@ -386,12 +394,8 @@ function Gestao() {
                     </div>
 
                     {alunosFiltrados.length > 0 ? (
-
                         <ul className={styles.alunosList}>
-
-                            {/* percorre alunos filtrados */}
                             {alunosFiltrados.map((item) => {
-                                // Encontra os detalhes da turma correspondente ao aluno
                                 const turmaDoAluno = turmas.find(t => Number(t.id) === Number(item.turmaId || item.turma_id));
                                 const infoTurma = turmaDoAluno ? `${turmaDoAluno.nome} — ${turmaDoAluno.turno}` : "Turma não informada";
                                 const numNotebook = item.notebookId || item.notebook_numero;

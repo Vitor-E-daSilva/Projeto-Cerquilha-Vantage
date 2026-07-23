@@ -49,45 +49,8 @@ function useAlunos() {
     }
   }
 
-  // Validações do frontend
-  function validarDadosAluno(dados, idIgnorado = null) {
-    if (!dados.nome || dados.nome.trim().length < 3 || dados.nome.length > 100) {
-      return "Nome inválido, deve conter entre 3 e 100 caracteres.";
-    }
-    if (!dados.email || !dados.email.includes("@") || !dados.email.includes(".") || dados.email.split('.').length < 2 || dados.email.split('@').length < 2) {
-      return "E-mail inválido! Formato correto: exemplo@email.com.";
-    }
-    if (!dados.senha || dados.senha.length < 7) {
-      return "Senha inválida, deve conter mínimo de 7 caracteres.";
-    }
-    const numNotebook = Number(dados.notebookId);
-    if (isNaN(numNotebook) || numNotebook < 1 || numNotebook > 200) {
-      return "Número do notebook inválido! Deve ser entre 1 e 200.";
-    }
-    if (!dados.turmaId || Number(dados.turmaId) <= 0) {
-      return "Selecione uma turma válida para o aluno.";
-    }
-    //Faz a checagem de duplicidade usando some(), faz mais de uma checagem e retorna true se alguma delas for true
-    
-    // Checagem de email duplicado
-    const emailDuplicado = alunos.some(
-      (a) => a.email.toLowerCase() === dados.email.trim().toLowerCase() && a.id !== idIgnorado
-    );
-    if (emailDuplicado) return "Este e-mail já está cadastrado.";
-
-    // Checagem de notebook em uso
-    const notebookDuplicado = alunos.some(
-      (a) => Number(a.notebookId) === numNotebook && a.id !== idIgnorado
-    );
-    if (notebookDuplicado) return `O notebook #${numNotebook} já está em uso por outro aluno.`;
-
-    return null;
-  }
-
   // Função para mandar os alunos para o banco
   async function criarAluno(dadosAluno) {
-    const erroValidacao = validarDadosAluno(dadosAluno); // Chama as validações
-    if (erroValidacao) { setErro(erroValidacao); return false; } // Retorna se a validação estiver errado
     setCarregando(true); // Diz ao sistema que a solicitação está em progresso
     try {
       const resposta = await fetch(BASE_URL, {
@@ -104,9 +67,6 @@ function useAlunos() {
 
   // Função para editar alunos
   async function editarAluno(id, dadosAluno) {
-    // Validações simples com o mesmo sistema de criarAluno()
-    const erroValidacao = validarDadosAluno(dadosAluno, id);
-    if (erroValidacao) { setErro(erroValidacao); return false; }
     setCarregando(true);
     try {
       const resposta = await fetch(`${BASE_URL}/${id}`, {
@@ -167,7 +127,7 @@ function useAlunos() {
 
   // Retorna todas as constantes
   return {
-    alunos, turmas, carregando, erro, sucesso, metricas, validarDadosAluno, buscarDados,
+    alunos, turmas, carregando, erro, sucesso, metricas, buscarDados,
     criarAluno, editarAluno, deletarAluno, esvaziarBanco, popularBanco
   };
 }
