@@ -1,6 +1,7 @@
 function Botao({ texto }) {
     return (
         <>
+            {/* Estilo do botão, css permanece nos componetes por eles serem menores em código*/}
             <style>
                 {`
                     .btn-submit {
@@ -37,6 +38,7 @@ function Botao({ texto }) {
                 `}
             </style>
 
+            {/* Codigo do botão em si */}
             <button type="submit" className="btn-submit">
                 {texto}
             </button>

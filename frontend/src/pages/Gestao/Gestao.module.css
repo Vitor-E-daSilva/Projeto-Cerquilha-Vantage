@@ -43,9 +43,9 @@
 }
 
 .statusSuccess {
-  background-color: var(--accent-bg);
+  background-color: rgb(67, 213, 72);
   color: var(--accent);
-  border: 1px solid var(--accent-border);
+  border: 1px solid rgb(0, 255, 4);
 }
 
 .statusLoading {
@@ -236,6 +236,32 @@
 }
 
 .customSelect option[value=""] {
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  background-color: var(--bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Estado de Foco (quando o usuário clica para pesquisar) */
+.searchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Estilização do texto temporário (Placeholder) */
+.searchInput::placeholder {
   color: var(--text);
   opacity: 0.6;
 }

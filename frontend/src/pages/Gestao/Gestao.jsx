@@ -19,7 +19,9 @@ function Gestao() {
         turmaId: "",
         notebookId: ""
     });
-
+    // Estado para o campo de pesquisa na lista de alunos
+    const [termoPesquisa, setTermoPesquisa] = useState("");
+    
     // mensagens locais do formulário
     const [erroForm, setErroForm] = useState("");
     const [sucessoForm, setSucessoForm] = useState(false);
@@ -134,9 +136,34 @@ function Gestao() {
 
     // deleta aluno selecionado
     const handlerDeletar = async (id) => {
-
-        await deletarAluno(id);
+        const confirmado = window.confirm(`Tem certeza que deseja excluir o aluno "${nomeAluno}"? Esta ação não pode ser desfeita.`);
+        
+        if (confirmado) {
+            await deletarAluno(id);
+        }
     };
+
+    // Lógica de Filtragem da Lista de Alunos (Pesquisa por Nome, Email, Notebook ou Turma)
+    const alunosFiltrados = alunos.filter(item => {
+        const termo = termoPesquisa.toLowerCase();
+        
+        // Descobre o nome e o turno da turma do aluno para permitir a busca por turma também
+        const turmaDoAluno = turmas.find(t => Number(t.id) === Number(item.turmaId || item.turma_id));
+        const nomeTurma = turmaDoAluno ? turmaDoAluno.nome.toLowerCase() : "";
+        const turnoTurma = turmaDoAluno ? turmaDoAluno.turno.toLowerCase() : "";
+        
+        const nome = item.nome ? item.nome.toLowerCase() : "";
+        const email = item.email ? item.email.toLowerCase() : "";
+        const notebook = String(item.notebookId || item.notebook_numero || "");
+
+        return (
+            nome.includes(termo) ||
+            email.includes(termo) ||
+            notebook.includes(termo) ||
+            nomeTurma.includes(termo) ||
+            turnoTurma.includes(termo)
+        );
+    });
 
     return (
 
@@ -248,7 +275,7 @@ function Gestao() {
                                 <label className={styles.selectLabel} htmlFor="turmaId">
                                     Turma
                                 </label>
-                                
+
                                 <select
                                     id="turmaId"
                                     name="turmaId"
@@ -336,48 +363,72 @@ function Gestao() {
                 {/* Lista de Alunos */}
                 <div className="card">
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                         <h2 style={{ fontSize: '18px', margin: 0 }}>
                             Alunos Cadastrados
                         </h2>
                         <span style={{ fontSize: '13px', color: 'var(--text)', fontWeight: '500' }}>
-                            Total: {alunos.length}
+                            Total: {alunosFiltrados.length} de {alunos.length}
                         </span>
                     </div>
 
-                    {alunos.length > 0 ? (
+                    {/* Input de Pesquisa por Turma, Aluno ou Notebook */}
+                    <div style={{ marginBottom: '20px' }}>
+                        <input
+                            type="text"
+                            placeholder="Pesquisar por nome, email, turma ou notebook..."
+                            value={termoPesquisa}
+                            onChange={(e) => setTermoPesquisa(e.target.value)}
+                            className={styles.searchInput}
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+
+                    {alunosFiltrados.length > 0 ? (
 
                         <ul className={styles.alunosList}>
 
-                            {/* percorre todos alunos */}
-                            {alunos.map((item) => (
-                                <li key={item.id} className={styles.alunoItem}>
-                                    <div className={styles.alunoInfo}>
-                                        <span className={styles.alunoName}>{item.nome}</span>
-                                        <span className={styles.alunoSub}>
-                                            {item.email}
-                                            <span className={styles.alunoBadge}>Notebook #{item.notebookId}</span>
-                                        </span>
-                                    </div>
-                                    <div className={styles.alunoActions}>
-                                        <button 
-                                            onClick={() => handlerEditar(item.id)} 
-                                            className={`${styles.btnAction} ${styles.btnEdit}`}
-                                        >
-                                            Editar
-                                        </button>
-                                        <button 
-                                            onClick={() => handlerDeletar(item.id)} 
-                                            className={`${styles.btnAction} ${styles.btnDelete}`}
-                                        >
-                                            Deletar
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
+                            {/* percorre alunos filtrados */}
+                            {alunosFiltrados.map((item) => {
+                                // Encontra os detalhes da turma correspondente ao aluno
+                                const turmaDoAluno = turmas.find(t => Number(t.id) === Number(item.turmaId || item.turma_id));
+                                const infoTurma = turmaDoAluno ? `${turmaDoAluno.nome} — ${turmaDoAluno.turno}` : "Turma não informada";
+                                const numNotebook = item.notebookId || item.notebook_numero;
+
+                                return (
+                                    <li key={item.id} className={styles.alunoItem}>
+                                        <div className={styles.alunoInfo}>
+                                            <span className={styles.alunoName}>{item.nome}</span>
+                                            <span className={styles.alunoSub}>
+                                                {item.email}
+                                                <span className={styles.alunoBadge}>Notebook #{numNotebook}</span>
+                                                <span className={styles.alunoBadge} style={{ backgroundColor: 'var(--code-bg)', color: 'var(--text-h)' }}>
+                                                    {infoTurma}
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div className={styles.alunoActions}>
+                                            <button
+                                                onClick={() => handlerEditar(item.id)}
+                                                className={`${styles.btnAction} ${styles.btnEdit}`}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                onClick={() => handlerDeletar(item.id, item.nome)}
+                                                className={`${styles.btnAction} ${styles.btnDelete}`}
+                                            >
+                                                Deletar
+                                            </button>
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     ) : (
-                        <p className={styles.emptyMessage}>Nenhum aluno registrado até o momento.</p>
+                        <p className={styles.emptyMessage}>
+                            {alunos.length === 0 ? "Nenhum aluno registrado até o momento." : "Nenhum aluno encontrado com base na pesquisa."}
+                        </p>
                     )}
                 </div>
 

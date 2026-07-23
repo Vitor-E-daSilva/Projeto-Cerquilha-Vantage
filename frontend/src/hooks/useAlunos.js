@@ -9,7 +9,7 @@ function useAlunos() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState(null);
   const [sucesso, setSucesso] = useState(null);
-  const [metricas, setMetricas] = useState(null);
+  const [metricas, setMetricas] = useState(null); // Nova constante para melhorar funcionamento dos gráficos no dashboard
 
   // Limpa as mensagens após 4 segundos
   useEffect(() => {
@@ -35,11 +35,13 @@ function useAlunos() {
       const dadosTurmas = await respTurmas.json();
       const dadosMetricas = await respMetricas.json();
 
+      // Checa a estrutura dos dados e injeta eles nas constantes
       setAlunos(Array.isArray(dadosAlunos) ? dadosAlunos : []);
       setTurmas(Array.isArray(dadosTurmas) ? dadosTurmas : []);
       if (!dadosMetricas.erro) {
         setMetricas(dadosMetricas);
       }
+
     } catch (e) {
       setErro("Erro ao conectar com o servidor. Verifique se o backend está ativo.");
     } finally {
@@ -47,11 +49,12 @@ function useAlunos() {
     }
   }
 
+  // Validações do frontend
   function validarDadosAluno(dados, idIgnorado = null) {
     if (!dados.nome || dados.nome.trim().length < 3 || dados.nome.length > 100) {
       return "Nome inválido, deve conter entre 3 e 100 caracteres.";
     }
-    if (!dados.email || !dados.email.includes("@") || !dados.email.includes(".")) {
+    if (!dados.email || !dados.email.includes("@") || !dados.email.includes(".") || dados.email.split('.').length < 2 || dados.email.split('@').length < 2) {
       return "E-mail inválido! Formato correto: exemplo@email.com.";
     }
     if (!dados.senha || dados.senha.length < 7) {
@@ -64,12 +67,15 @@ function useAlunos() {
     if (!dados.turmaId || Number(dados.turmaId) <= 0) {
       return "Selecione uma turma válida para o aluno.";
     }
-
+    //Faz a checagem de duplicidade usando some(), faz mais de uma checagem e retorna true se alguma delas for true
+    
+    // Checagem de email duplicado
     const emailDuplicado = alunos.some(
       (a) => a.email.toLowerCase() === dados.email.trim().toLowerCase() && a.id !== idIgnorado
     );
     if (emailDuplicado) return "Este e-mail já está cadastrado.";
 
+    // Checagem de notebook em uso
     const notebookDuplicado = alunos.some(
       (a) => Number(a.notebookId) === numNotebook && a.id !== idIgnorado
     );
@@ -78,15 +84,17 @@ function useAlunos() {
     return null;
   }
 
+  // Função para mandar os alunos para o banco
   async function criarAluno(dadosAluno) {
-    const erroValidacao = validarDadosAluno(dadosAluno);
-    if (erroValidacao) { setErro(erroValidacao); return false; }
-    setCarregando(true);
+    const erroValidacao = validarDadosAluno(dadosAluno); // Chama as validações
+    if (erroValidacao) { setErro(erroValidacao); return false; } // Retorna se a validação estiver errado
+    setCarregando(true); // Diz ao sistema que a solicitação está em progresso
     try {
       const resposta = await fetch(BASE_URL, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dadosAluno),
-      });
-      const dados = await resposta.json();
+      }); // Envia para o servidor
+      const dados = await resposta.json(); // Pega resposta do servidor
+      // Procedimentos padrão de finalização do processo ↓
       if (!resposta.ok) { setErro(dados.erro || "Falha ao cadastrar aluno."); return false; }
       setSucesso("Aluno cadastrado com sucesso!");
       await buscarDados();
@@ -94,7 +102,9 @@ function useAlunos() {
     } catch (e) { setErro("Erro ao cadastrar aluno."); return false; } finally { setCarregando(false); }
   }
 
+  // Função para editar alunos
   async function editarAluno(id, dadosAluno) {
+    // Validações simples com o mesmo sistema de criarAluno()
     const erroValidacao = validarDadosAluno(dadosAluno, id);
     if (erroValidacao) { setErro(erroValidacao); return false; }
     setCarregando(true);
@@ -110,7 +120,9 @@ function useAlunos() {
     } catch (e) { setErro("Erro ao editar aluno."); return false; } finally { setCarregando(false); }
   }
 
+  // Função para deletar alunos
   async function deletarAluno(id) {
+    // Envia uma solicitação para o servidor deletar o aluno, passsando o id
     setCarregando(true);
     try {
       const resposta = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
@@ -122,7 +134,9 @@ function useAlunos() {
     } catch (e) { setErro("Erro ao excluir aluno."); return false; } finally { setCarregando(false); }
   }
 
+  // Função para uso no menu de configurações
   async function esvaziarBanco() {
+    // Chama uma rota especifica do servidor para deletar todos os alunos
     setCarregando(true);
     try {
       const resposta = await fetch(`${API_URL}/dev/limpar`, { method: "DELETE" });
@@ -133,7 +147,9 @@ function useAlunos() {
     } catch (e) { setErro("Erro ao esvaziar banco de dados."); return false; } finally { setCarregando(false); }
   }
 
+  // Função para popular o banco
   async function popularBanco() {
+    // Chama outra rota do servidor para popular o banco com alunos base
     setCarregando(true);
     try {
       const resposta = await fetch(`${API_URL}/dev/seed`, { method: "POST" });
@@ -144,11 +160,12 @@ function useAlunos() {
     } catch (e) { setErro("Erro ao popular banco de dados."); return false; } finally { setCarregando(false); }
   }
 
+  // useEffect padrão do React
   useEffect(() => {
     buscarDados();
   }, []);
 
-
+  // Retorna todas as constantes
   return {
     alunos, turmas, carregando, erro, sucesso, metricas, validarDadosAluno, buscarDados,
     criarAluno, editarAluno, deletarAluno, esvaziarBanco, popularBanco

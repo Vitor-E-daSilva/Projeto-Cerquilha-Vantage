@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 
+// Adicionada um sistema de fechar e abrir a sidebar para melhorar a UI
 function Sidebar({ aberta, toggleSidebar }) {
   return (
     <>
-      {/* Estilos CSS Injetados para o Hover moderno e profissional */}
+      {/* Estilos CSS para o hover */}
       <style>
         {`
           .sidebar-link {
@@ -18,7 +19,7 @@ function Sidebar({ aberta, toggleSidebar }) {
         `}
       </style>
 
-      {/* Fundo escuro transparente (Overlay) */}
+      {/* Fundo escuro transparente */}
       {aberta && (
         <div 
           onClick={toggleSidebar} 
@@ -32,7 +33,7 @@ function Sidebar({ aberta, toggleSidebar }) {
         />
       )}
 
-      {/* Menu Lateral (Gaveta Moderna e Corporativa) */}
+      {/* Menu Lateral, quando aberta*/}
       <aside style={{
         position: 'fixed',
         top: '60px',
@@ -105,7 +106,7 @@ function Sidebar({ aberta, toggleSidebar }) {
   );
 }
 
-// Estilo base limpo e sóbrio
+// Estilo base
 const estiloLink = {
   textDecoration: 'none',
   color: 'var(--text-h)',

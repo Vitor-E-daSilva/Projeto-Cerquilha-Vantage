@@ -1,3 +1,5 @@
+/* -- CSS do DashBoard -- */
+
 .dashboardContainer {
   max-width: 1200px;
   margin: 0 auto;
@@ -170,5 +172,128 @@
 @media (max-width: 768px) {
   .chartsGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.turmaGroup {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg);
+}
+
+.turmaHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.turmaHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.turmaBadge {
+  background-color: var(--code-bg);
+  color: var(--text);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.totalBadge {
+  margin-left: auto;
+  background-color: var(--accent-bg);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.alunosList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.alunoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.alunoItem:last-child {
+  border-bottom: none;
+}
+
+.alunoInfoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alunoName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.alunoEmail {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.alunoNotebookTag {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-h);
+  background-color: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.searchInput {
+  padding: 8px 14px;
+  background-color: var(--bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 220px;
+}
+
+.searchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.searchInput::placeholder {
+  color: var(--text);
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .searchInput {
+    width: 100%;
   }
 }

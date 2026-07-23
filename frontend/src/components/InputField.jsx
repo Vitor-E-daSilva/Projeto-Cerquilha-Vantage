@@ -3,7 +3,7 @@ import React from 'react';
 function InputField({ label, type, name, placeholder, value, onChange, inputRef }) {
   return (
     <div className="input-field-container">
-      {/* CSS */}
+      {/* CSS, permanece no componente */}
       <style>
         {`
           .input-field-container {
@@ -48,14 +48,14 @@ function InputField({ label, type, name, placeholder, value, onChange, inputRef 
         `}
       </style>
 
-      {/* Rótulo / Label do Input */}
+      {/* Rótulo / Label do Input, agora contém checagem básica para só carregar se existir */}
       {label && (
         <label className="input-label" htmlFor={name}>
           {label}
         </label>
       )}
 
-      {/* Campo de Entrada */}
+      {/* Campo de Entrada, adiciona className para o css e desativa o autocomplete */}
       <input
         id={name}
         ref={inputRef}

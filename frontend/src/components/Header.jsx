@@ -8,6 +8,12 @@ function Header({ toggleSidebar, temaAtivo, setTemaAtivo }) {
     else if (temaAtivo === "vermelho-escuro") setTemaAtivo("vermelho-claro");
   };
 
+  // Função para redirecionar o usuário
+  const redirecionar = () => {
+    window.location.href = "./";
+  }
+
+  // Retorna um header
   return (
     <header style={{
       display: 'flex',
@@ -46,8 +52,8 @@ function Header({ toggleSidebar, temaAtivo, setTemaAtivo }) {
         margin: 0, 
         fontSize: '20px', 
         letterSpacing: '1px',
-        color: 'var(--accent)'
-      }}>
+        color: 'var(--accent)',
+      }} onClick={redirecionar}>
         Cerquilha Vantage
       </h2>
 

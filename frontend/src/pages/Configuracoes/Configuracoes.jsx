@@ -51,10 +51,10 @@ function Configuracoes({ temaAtivo, setTemaAtivo }) {
 
   // Lista dos temas disponíveis
   const opcoesTemas = [
-    { id: 'roxo-claro', nome: 'Roxo Claro', corFundo: '#F9FAFB', corDestaque: '#aa3bff' },
-    { id: 'roxo-escuro', nome: 'Roxo Escuro', corFundo: '#111827', corDestaque: '#c084fc' },
-    { id: 'vermelho-claro', nome: 'Vermelho Claro', corFundo: '#FEF2F2', corDestaque: '#ef4444' },
-    { id: 'vermelho-escuro', nome: 'Vermelho Escuro', corFundo: '#171717', corDestaque: '#f87171' }
+    { id: 'roxo-claro', nome: 'Vantage-White', corFundo: '#F9FAFB', corDestaque: '#aa3bff' },
+    { id: 'roxo-escuro', nome: 'Vantage-Dark', corFundo: '#111827', corDestaque: '#c084fc' },
+    { id: 'vermelho-claro', nome: 'Velvet-White', corFundo: '#FEF2F2', corDestaque: '#ef4444' },
+    { id: 'vermelho-escuro', nome: 'Velvet-Dark', corFundo: '#171717', corDestaque: '#f87171' }
   ];
 
   return (
@@ -66,7 +66,7 @@ function Configuracoes({ temaAtivo, setTemaAtivo }) {
         <p>Gerenciamento de preferências do sistema e ferramentas de ambiente.</p>
       </header>
 
-      {/* SEÇÃO 1: APARÊNCIA E TEMAS */}
+      {/* APARÊNCIA E TEMAS */}
       <section className="card">
         <div className={styles.sectionHeader}>
           <h2>Aparência do Sistema</h2>
@@ -109,7 +109,7 @@ function Configuracoes({ temaAtivo, setTemaAtivo }) {
         </div>
       )}
 
-      {/* SEÇÃO 2: ÁREA DE DESENVOLVIMENTO */}
+      {/* ÁREA DE DESENVOLVIMENTO */}
       <section className={`card ${styles.devSection}`}>
         <div className={styles.sectionHeader}>
           <h2>Ferramentas de Desenvolvimento</h2>
