@@ -1,160 +1,140 @@
-# Cerquilha 💻
+# Cerquilha Vantage 💻⚡
 
-**Sistema de Gestão de Notebooks — CajuHub** Projeto de Alocação de Ativos · Node.js + Express + React · leonardomaiaa
+**Sistema Serverless de Alta Performance para Gestão e Alocação de Notebooks**  
+*Plataforma Full-Stack na Borda (Edge Computing) · Hono + Cloudflare D1/Workers + React + Victory*
+
+---
+
+## 🌐 Acesse o Sistema no Ar
+
+A aplicação está publicada e pronta para uso em ambiente de produção de alta disponibilidade:
+
+👉 **[https://cerquilha-vantage.sitedealtonivel.workers.dev](https://cerquilha-vantage.sitedealtonivel.workers.dev)**
 
 ---
 
 ## 1. Visão Geral
 
-O **Cerquilha** é um sistema web desenvolvido para gerenciar a distribuição e alocação de notebooks para os alunos da turma da manhã na CajuHub. O sistema garante que cada aluno tenha um único equipamento exclusivo (com numeração de 1 a 200), evitando conflitos de uso e centralizando o controle através de uma interface fluida com Dashboard analítico.
+O **Cerquilha Vantage** é uma solução web moderna e extremamente rápida desenvolvida para automatizar o controle, distribuição e auditoria de equipamentos portáteis (notebooks). O sistema garante que cada aluno tenha um único equipamento vinculado (com trava rígida de limite de 1 a 200 notebooks), eliminando conflitos de uso e centralizando insights operacionais através de um Dashboard analítico dinâmico.
 
-| Tipo | Sistema de Gestão de Inventário (Frontend + Backend) |
-|------|---------------------------------------------------|
-| Backend | Node.js + Express — API REST |
-| Banco | Array em memória (sem banco real — reinicia ao fechar) |
-| Frontend | React + Vite |
-| Roteamento | React Router v7 |
-| Porta API | http://localhost:3000 |
-| Porta Web | http://localhost:5173 |
+Concebido como uma evolução de um protótipo de gestão, o **Cerquilha Vantage** foi totalmente reconstruído do zero para rodar sobre a infraestrutura Serverless global da Cloudflare, combinando respostas em milissegundos no backend com uma experiência de usuário (UX) fluida e responsiva no frontend.
 
 ---
 
-## 2. Estrutura de Pastas
+## 2. Destaques e Arquitetura
 
-Com base na arquitetura atual do repositório, o projeto é dividido de forma independente entre a API e a interface gráfica:
+* **Infraestrutura de Borda (Edge Computing):** Backend distribuído executando no **Cloudflare Workers**, garantindo disponibilidade 24/7 e latência mínima.
+* **Banco de Dados Relacional Serverless:** Uso do **Cloudflare D1** (SQLite relacional na nuvem), garantindo persistência e integridade dos dados sem a necessidade de servidores tradicionais.
+* **API REST em Alta Velocidade:** Construída com **Hono.js**, um framework ultraleve otimizado para ambientes serverless.
+* **Dashboard Analítico com Victory:** Visualização gráfica vetorial (SVG) da distribuição de alunos por turno, ocupação total da frota e densidade de turmas.
+* **Busca e Filtragem Inteligente:** Pesquisa em tempo real por nome, e-mail, número de notebook ou turma na tela de gestão e na listagem segmentada.
+* **UX Tátil com Foco Automático:** Validações de formulário que identificam erros em tempo real e apontam o cursor automaticamente para o campo incorreto (`useRef.focus()`).
+* **DevTools Integrado (Modo Demonstração):** Ferramentas no painel de configurações para popular o banco com dados de teste (*Seed*) ou esvaziá-lo para avaliação do sistema.
+* **Design Responsivo Coluna Única:** Layout perfeitamente adaptado para dispositivos móveis, sem quebras de tela ou barras de rolagem indesejadas.
 
+---
 
-```
+## 3. Stack Tecnológico
 
-Projeto-Cerquilha-React/
+| Camada | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Frontend** | **React + Vite** | Interface reativa rápida com componentes modulares |
+| **Gráficos** | **Victory** | Visualização de dados dinâmica, responsiva e animada |
+| **Roteamento** | **React Router v7** | Navegação por abas e rotas sem recarregar a página |
+| **Backend** | **Hono.js** | Framework web moderno e performático para Edge Workers |
+| **Banco de Dados** | **Cloudflare D1** | Banco relacional SQL nativo da nuvem |
+| **Hospedagem** | **Cloudflare Workers & Pages** | Deploy serverless com alta disponibilidade global |
+
+---
+
+## 4. Estrutura do Projeto
+```text
+Projeto-Cerquilha-Vantage/
 ├── backend/
-│   ├── node_modules/               ← Dependências do servidor (gerado no install)
-│   ├── .gitignore                  ← Arquivos ignorados pelo Git
-│   ├── index.js                    ← Ponto de entrada: Servidor Express + Rotas + Regras
-│   ├── package-lock.json
-│   └── package.json                ← Scripts e dependências do ecossistema backend
+│   ├── src/
+│   │   └── index.js          ← API Hono: Rotas REST, Queries SQL e Métricas
+│   ├── schema.sql            ← Definição das tabelas relacionais (Alunos e Turmas)
+│   ├── wrangler.toml         ← Configuração de Bindings D1 e deploy do Worker
+│   └── package.json
 │
 └── frontend/
-├── public/                     ← Ativos públicos e ícones
-├── src/                        ← Código-fonte do React (Componentes, Páginas, Hooks)
-├── .gitignore
-├── README.md                   ← Documentação local do frontend
-├── eslint.config.js            ← Configuração de padronização de código
-├── index.html                  ← HTML base do ecossistema Vite
-├── package-lock.json
-├── package.json                ← Scripts e dependências do frontend
-└── vite.config.js              ← Configurações de build do Vite
-
+    ├── public/
+    │   ├── icone.svg         ← Favicon vetorial customizado
+    │   └── _redirects        ← Regras de roteamento para SPA
+    ├── src/
+    │   ├── components/       ← Inputs, Botões e Elementos reusáveis
+    │   ├── hooks/
+    │   │   └── useAlunos.js  ← Hook customizado para consumo da API e estado global
+    │   ├── pages/
+    │   │   ├── Dashboard/    ← Gráficos Victory e Relação por Turma
+    │   │   ├── Gestao/       ← Formulário de cadastro e listagem filtrável
+    │   │   └── Config/       ← Seção DevTools (Seed/Limpar) e Gerenciador de Temas
+    │   └── styles/           ← Variáveis globais de cores e módulos CSS
+    ├── package.json
+    └── vite.config.js
 ```
 
 ---
 
-## 3. Como Rodar o Projeto
+## 5. Rotas da API REST
 
-Você precisa de **dois terminais abertos** simultaneamente para rodar a aplicação completa.
+O backend responde por endpoints otimizados e seguros:
 
-### Terminal 1 — Backend (API)
+| Método | Rota | Descrição | Status |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/registros` | Retorna a lista de alunos e seus notebooks alocados | `200` |
+| `POST` | `/registros` | Cadastra um aluno e vincula a um notebook livre | `201` |
+| `PUT` | `/registros/:id` | Atualiza dados ou altera o notebook do aluno | `200` |
+| `DELETE` | `/registros/:id` | Desvincula o aluno e libera o equipamento | `200` |
+| `GET` | `/turmas` | Retorna as turmas e seus respectivos turnos | `200` |
+| `GET` | `/metricas` | Consulta SQL agregada para os gráficos do Dashboard | `200` |
+| `POST` | `/dev/seed` | Popula o banco com turmas e alunos de teste | `200` |
+| `DELETE` | `/dev/limpar` | Reseta o banco de dados para testes | `200` |
+
+---
+
+## 6. Como Executar Localmente
+
+### Pré-requisitos
+* **Node.js** (v18 ou superior)
+* **Wrangler CLI** (ferramenta de desenvolvimento da Cloudflare)
+
+### 1. Iniciando o Backend (API)
 
 ```bash
 # Entre na pasta do backend
-cd Projeto-Cerquilha-React/backend
+cd backend
 
-# Instale as dependências essenciais
+# Instale as dependências
 npm install
 
-# Inicie o servidor
+# Inicie o servidor do Worker em modo de desenvolvimento
 npm run dev
-
-# Resultado esperado:
-# Servidor rodando na porta http://localhost:3000
-
+# Servidor disponível em: http://localhost:8787
 ```
 
-### Terminal 2 — Frontend (Interface)
+### 2. Iniciando o Frontend (Interface)
 
 ```bash
 # Entre na pasta do frontend
-cd Projeto-Cerquilha-React/frontend
+cd frontend
 
 # Instale os pacotes de interface
 npm install
 
-# Inicie o ambiente de desenvolvimento do Vite
+# Inicie a aplicação no Vite
 npm run dev
-
-# Resultado esperado:
-#   VITE ready
-#   ➜  Local:   http://localhost:5173/
-
+# Aplicação disponível em: http://localhost:5173
 ```
+---
 
-> ⚠️ **Aviso de Execução:** Certifique-se de iniciar o backend primeiro para que o hook do frontend consiga buscar o estado inicial dos dados sem falhas.
+## 7. Regras de Negócio e Validações
+
+* **Capacidade da Frota:** O equipamento deve obrigatoriamente estar entre os números `1` e `200`.
+* **Exclusividade de Hardware:** Dois alunos não podem ter o mesmo notebook alocado simultaneamente (retorna erro `409 Conflict`).
+* **Validação de Turmas:** Todo aluno cadastrado deve estar vinculado a uma turma válida cadastrada no sistema.
+* **Integridade dos Dados:** Validação do formato de e-mail e restrição de senha mínima de 7 caracteres.
 
 ---
 
-## 4. Rotas e Regras da API
-
-O endpoint unificado responde na rota principal do backend.
-
-| Método | Rota | Descrição | Status |
-| --- | --- | --- | --- |
-| `GET` | `/alunos` | Retorna a lista de alunos e seus notebooks alocados | 200 |
-| `POST` | `/alunos` | Vincula um aluno a um notebook específico | 201 |
-| `PUT` | `/alunos/:id` | Modifica os dados ou troca o número do notebook pelo ID | 200 |
-| `DELETE` | `/alunos/:id` | Remove o vínculo do aluno e libera o notebook | 200 |
-
-### Payload de Exemplo (JSON)
-
-Ao cadastrar ou atualizar, o objeto deve seguir a estrutura de dados abaixo:
-
-```json
-{
-  "nome": "Leonardo Maia",
-  "email": "leonardo@cajuhub.com",
-  "notebook": 45
-}
-
-```
-
----
-
-## 5. Validações de Negócio
-
-Para manter o inventário da CajuHub íntegro, o backend aplica as seguintes validações:
-
-1. **Intervalo de Equipamentos:** O número do notebook informado deve obrigatoriamente estar entre `1` e `200`.
-2. **Uso Exclusivo:** Um notebook **não pode** ser utilizado por mais de um aluno simultaneamente (Erro `409 Conflict`).
-3. **Dados Obrigatórios:** Validação de campos de identificação do aluno antes de persistir no array de memória.
-
----
-
-## 6. Telas do Frontend
-
-### 📋 Gestão (CRUD)
-
-Página operacional contendo o formulário de cadastro de alunos e a escolha do notebook. Exibe uma tabela dinâmica com todos os registros atuais, permitindo a edição rápida ou a exclusão dos vínculos.
-
-### 📊 Dashboard
-
-Painel estatístico que lê os dados em tempo real para apresentar insights à gestão da CajuHub, como:
-
-* Total de alunos atendidos na turma da manhã.  
-* Total de notebooks atualmente em uso (ocupados).
-* Total de notebooks disponíveis em estoque (dentro do limite de 200).
-
----
-
-## 7. Status do Desenvolvimento
-
-| Funcionalidade | Status |
-| --- | --- |
-| Servidor Express e Middlewares (`cors` + `json`) | ✅ Pronto |
-| CRUD Completo de Alunos/Notebooks | ✅ Pronto |
-| Trava de limite de Notebooks (1 a 200) | ✅ Pronto |
-| Bloqueio de duplicidade de hardware | ✅ Pronto |
-
----
-
-*Cerquilha · Sistema de Gestão de Ativos · CajuHub — Turma da Manhã*
-
-```
+*Cerquilha Vantage · Sistema Serverless de Gestão de Ativos*
