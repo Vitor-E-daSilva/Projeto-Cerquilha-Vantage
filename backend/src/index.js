@@ -56,9 +56,9 @@ servidor.post('/registros', async (c) => {
 
         // Insere o aluno e usa "RETURNING *" para já devolver a linha recém-criada (com o ID gerado pelo banco)
         const novoRegistro = await c.env.DB.prepare(`
-            INSERT INTO alunos (nome, email, senha, notebook_numero) 
-            VALUES (?, ?, ?, ?) RETURNING *
-        `).bind(dados.nome.trim(), dados.email.trim(), dados.senha, dados.notebookId).first()
+            INSERT INTO alunos (nome, email, senha, turma_id, notebook_numero) 
+            VALUES (?, ?, ?, ?, ?) RETURNING *
+        `).bind(dados.nome.trim(), dados.email.trim(), dados.senha, dados.turmaId, dados.notebookId).first()
 
         return c.json({
             sucesso: true,
